@@ -74,7 +74,7 @@ class Compiler:
         elif node.kind == Parser.EXPR:
             self.compile(node.op1)
             self.gen(IPOP)
-        elif node.kind == Parser.PROG:
+        elif node.kind == Parser.FUNC:
             self.compile(node.op1)
             self.gen(HALT)
         return self.program

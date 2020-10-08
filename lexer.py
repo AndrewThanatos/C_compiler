@@ -1,4 +1,10 @@
 import sys
+import hashlib
+
+def hash_var(var_name):
+    hash_object = hashlib.sha1(var_name.encode())
+    hex_dig = hash_object.hexdigest()
+    return hex_dig
 
 
 class Lexer:
@@ -11,13 +17,14 @@ class Lexer:
     FLOAT = 'FLOAT'
     STRING = 'STRING'
 
-    NUM = 'NUM'
+    VALUE = 'VALUE'
     ID = 'ID'
 
     IF = 'IF'
     ELSE = 'ELSE'
     WHILE = 'WHILE'
     DO = 'DO'
+    RETURN = 'RETURN'
 
     LBRA = 'LBRA'
     RBRA = 'RBRA'
@@ -42,12 +49,17 @@ class Lexer:
     SYMBOLS = {'{': LBRA, '}': RBRA, '=': ASSIGN, ';': SEMICOLON, '(': LPAR, ')': RPAR, '+': PLUS, '-': MINUS,
                '*': MULTIPLY, '/': DEVIDE, '<': LESS, '>': MORE}
 
+    QUOTES = "\'"
+    DOT = '.'
+
     TEST_SYMBOLS_LONG = {'==': EQUAL, '>=': MORE_EQUAL, '<=': LESS_EQUAL}
     TEST_SYMBOLS_SHORT = {'=': ASSIGN, '>': MORE, '<': LESS}
     TEST_SMB_SHORT = {'LESS': '<', 'MORE': '>', 'ASSIGN': '='}
 
-    WORDS = {'if': IF, 'else': ELSE, 'do': DO, 'while': WHILE}
-    TYPES = {'int': INT, 'float': FLOAT, 'str': STRING}
+    WORDS = {'if': IF, 'else': ELSE, 'do': DO, 'while': WHILE, 'return': RETURN}
+    TYPES = {'int': INT, 'float': FLOAT, 'string': STRING}
+
+    VARIABLES = {}
 
     ch = ' '  # допустим, первый символ - это пробел
 
@@ -55,12 +67,15 @@ class Lexer:
         print('Lexer error: ', msg)
         sys.exit(1)
 
+    def add_var(self, var_name, var_type):
+        Lexer.VARIABLES.update({var_name: var_type})
+
     def getc(self):
         self.ch = self.file.read(1)
 
     def next_tok(self):
         self.value = None
-        self.type = None
+        self.var_name = None
         self.sym = None
         while self.sym is None:
             if len(self.ch) == 0:
@@ -74,12 +89,24 @@ class Lexer:
                     self.sym = Lexer.TEST_SYMBOLS_LONG[Lexer.TEST_SMB_SHORT[self.sym] + self.ch]
                     self.getc()
             elif self.ch.isdigit():
+                flag = True
+                value = 0
                 intval = 0
                 while self.ch.isdigit():
-                    intval = intval * 10 + int(self.ch)
+                    value = value * 10 + int(self.ch)
                     self.getc()
-                self.value = intval
-                self.sym = Lexer.NUM
+                    if self.ch == Lexer.DOT:
+                        if not flag:
+                            self.error('Invalid expression')
+                        intval = value
+                        value = 0
+                        flag = False
+                        self.getc()
+
+                if not flag:
+                    value = intval + value / pow(10, len(str(value)))
+                self.value = value
+                self.sym = Lexer.VALUE
             elif self.ch.isalpha():
                 ident = ''
                 while self.ch.isalpha():
@@ -87,13 +114,24 @@ class Lexer:
                     self.getc()
                 if ident in Lexer.WORDS:
                     self.sym = Lexer.WORDS[ident]
-                if ident in Lexer.TYPES:
+                elif ident in Lexer.TYPES:
                     self.sym = Lexer.TYPE
-                    self.type = Lexer.TYPES[ident]
-                elif len(ident) == 1:
-                    self.sym = Lexer.ID
-                    self.value = ord(ident) - ord('a')
+                    self.value = Lexer.TYPES[ident]
                 else:
-                    self.error('Unknown identifier: ' + ident)
+                    self.sym = Lexer.ID
+                    self.value = hash_var(ident)
+                    self.var_name = ident
+            elif self.ch == Lexer.QUOTES:
+                str_val = ''
+                self.getc()
+                while self.ch != Lexer.QUOTES and len(self.ch) != 0:
+                    if len(self.ch) == 0:
+                        self.error("expected '")
+                    str_val += self.ch
+                    self.getc()
+                self.sym = Lexer.VALUE
+                self.value = str_val
+                self.getc()
+
             else:
                 self.error('Unexpected symbol: ' + self.ch)
