@@ -3,20 +3,42 @@ from lexer import Lexer
 
 
 class Node:
-    def __init__(self, kind, value=None, op1=None, op2=None, op3=None):
+    def __init__(self, kind, value=None, var_type=None, op1=None, op2=None, op3=None):
         self.kind = kind
-        self.h_kind = Parser.KEY_WORDS[kind]
         self.value = value
+        self.type = var_type
         self.op1 = op1
         self.op2 = op2
         self.op3 = op3
 
 
 class Parser:
-    VAR, CONST, ADD, SUB, MULT, DIV, LESS, MORE, LESS_EQUAL, MORE_EQUAL, EQUAL, SET, IF1, IF2, WHILE, DO, \
-    EMPTY, SEQ, EXPR, PROG = range(20)
-    KEY_WORDS = ['VAR', 'CONST', 'ADD', 'SUB', 'MULT', 'DIV', 'LESS', 'MORE', 'LESS_EQUAL', 'MORE_EQUAL', 'EQUAL',
-                 'SET', 'IF1', 'IF2', 'WHILE', 'DO', 'EMPTY', 'SEQ', 'EXPR', 'PROG']
+    VAR = 'VAR'
+    CONST = 'CONST'
+    TYPE = 'TYPE'
+
+    ADD = 'ADD'
+    SUB = 'SUB'
+    MULT = 'MULT'
+    DIV = 'DIV'
+
+    LESS = 'LESS'
+    MORE = 'MORE'
+    LESS_EQUAL = 'LESS_EQUAL'
+    MORE_EQUAL = 'MORE_EQUAL'
+    EQUAL = 'EQUAL'
+    NO_EQUAL = 'NO_EQUAL'
+
+    SET = 'SET'
+    IF1 = 'IF1'
+    IF2 = 'IF2'
+    WHILE = 'WHILE'
+    DO = 'DO'
+    EMPTY = 'WHILE'
+
+    SEQ = 'SEQ'
+    EXPR = 'EXPR'
+    PROG = 'PROG'
 
     def __init__(self, lexer):
         self.lexer = lexer
@@ -32,6 +54,14 @@ class Parser:
             return n
         elif self.lexer.sym == Lexer.NUM:
             n = Node(Parser.CONST, self.lexer.value)
+            self.lexer.next_tok()
+            return n
+        elif self.lexer.sym == Lexer.TYPE:
+            var_type = self.lexer.type
+            self.lexer.next_tok()
+            if self.lexer.sym != Lexer.ID:
+                self.lexer.error('Variable expected')
+            n = Node(kind=Parser.CONST, var_type=var_type, value=self.lexer.value)
             self.lexer.next_tok()
             return n
         else:
@@ -78,10 +108,13 @@ class Parser:
         return n
 
     def expr(self):
-        if self.lexer.sym != Lexer.ID:
+        if self.lexer.sym != Lexer.ID and self.lexer.sym not in Lexer.TYPE:
             return self.test()
         n = self.test()
-        if n.kind == Parser.VAR and self.lexer.sym == Lexer.ASSIGN:
+        if n.kind == Parser.TYPE and self.lexer.sym == Lexer.ID:
+            self.lexer.next_tok()
+            n = Node(kind=Parser.SET, op1=n, op2=self.expr())
+        elif n.kind == Parser.VAR and self.lexer.sym == Lexer.ASSIGN:
             self.lexer.next_tok()
             n = Node(kind=Parser.SET, op1=n, op2=self.expr())
         return n
