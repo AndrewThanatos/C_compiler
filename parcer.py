@@ -5,6 +5,7 @@ from lexer import Lexer
 class Node:
     def __init__(self, kind, value=None, op1=None, op2=None, op3=None):
         self.kind = kind
+        self.h_kind = Parser.KEY_WORDS[kind]
         self.value = value
         self.op1 = op1
         self.op2 = op2
@@ -12,7 +13,10 @@ class Node:
 
 
 class Parser:
-    VAR, CONST, ADD, SUB, LT, SET, IF1, IF2, WHILE, DO, EMPTY, SEQ, EXPR, PROG = range(14)
+    VAR, CONST, ADD, SUB, MULT, DIV, LESS, MORE, LESS_EQUAL, MORE_EQUAL, EQUAL, SET, IF1, IF2, WHILE, DO, \
+    EMPTY, SEQ, EXPR, PROG = range(20)
+    KEY_WORDS = ['VAR', 'CONST', 'ADD', 'SUB', 'MULT', 'DIV', 'LESS', 'MORE', 'LESS_EQUAL', 'MORE_EQUAL', 'EQUAL',
+                 'SET', 'IF1', 'IF2', 'WHILE', 'DO', 'EMPTY', 'SEQ', 'EXPR', 'PROG']
 
     def __init__(self, lexer):
         self.lexer = lexer
@@ -33,31 +37,53 @@ class Parser:
         else:
             return self.paren_expr()
 
-    def summa(self):
+    def multy(self):
         n = self.term()
-        while self.lexer.sym == Lexer.PLUS or self.lexer.sym == Lexer.MINUS:
+        if self.lexer.sym == Lexer.MULTIPLY or self.lexer.sym == Lexer.DEVIDE:
+            if self.lexer.sym == Lexer.MULTIPLY:
+                kind = Parser.MULT
+            else:
+                kind = Parser.DIV
+            self.lexer.next_tok()
+            n = Node(kind, op1=n, op2=self.multy())
+        return n
+
+    def math(self):
+        n = self.multy()
+        if self.lexer.sym == Lexer.PLUS or self.lexer.sym == Lexer.MINUS:
             if self.lexer.sym == Lexer.PLUS:
                 kind = Parser.ADD
             else:
                 kind = Parser.SUB
             self.lexer.next_tok()
-            n = Node(kind, op1=n, op2=self.term())
+            n = Node(kind=kind, op1=n, op2=self.math())
         return n
 
     def test(self):
-        n = self.summa()
-        if self.lexer.sym == Lexer.LESS:
+        n = self.math()
+        if self.lexer.sym == Lexer.LESS or self.lexer.sym == Lexer.MORE or self.lexer.sym == Lexer.LESS_EQUAL \
+                or self.lexer.sym == Lexer.MORE_EQUAL or self.lexer.sym == Lexer.EQUAL:
+            if self.lexer.sym == Lexer.LESS:
+                kind = Parser.LESS
+            elif self.lexer.sym == Lexer.MORE:
+                kind = Parser.MORE
+            elif self.lexer.sym == Lexer.LESS_EQUAL:
+                kind = Parser.LESS_EQUAL
+            elif self.lexer.sym == Lexer.MORE_EQUAL:
+                kind = Parser.MORE_EQUAL
+            else:
+                kind = Parser.EQUAL
             self.lexer.next_tok()
-            n = Node(Parser.LT, op1=n, op2=self.summa())
+            n = Node(kind=kind, op1=n, op2=self.math())
         return n
 
     def expr(self):
         if self.lexer.sym != Lexer.ID:
             return self.test()
         n = self.test()
-        if n.kind == Parser.VAR and self.lexer.sym == Lexer.EQUAL:
+        if n.kind == Parser.VAR and self.lexer.sym == Lexer.ASSIGN:
             self.lexer.next_tok()
-            n = Node(Parser.SET, op1=n, op2=self.expr())
+            n = Node(kind=Parser.SET, op1=n, op2=self.expr())
         return n
 
     def paren_expr(self):
@@ -72,23 +98,18 @@ class Parser:
 
     def statement(self):
         if self.lexer.sym == Lexer.IF:
-            n = Node(Parser.IF1)
             self.lexer.next_tok()
-            n.op1 = self.paren_expr()
-            n.op2 = self.statement()
+            n = Node(kind=Parser.IF1, op1=self.paren_expr(), op2=self.statement())
             if self.lexer.sym == Lexer.ELSE:
                 n.kind = Parser.IF2
                 self.lexer.next_tok()
                 n.op3 = self.statement()
         elif self.lexer.sym == Lexer.WHILE:
-            n = Node(Parser.WHILE)
             self.lexer.next_tok()
-            n.op1 = self.paren_expr()
-            n.op2 = self.statement();
+            n = Node(kind=Parser.WHILE, op1=self.paren_expr(), op2=self.statement())
         elif self.lexer.sym == Lexer.DO:
-            n = Node(Parser.DO)
             self.lexer.next_tok()
-            n.op1 = self.statement()
+            n = Node(kind=Parser.DO, op1=self.statement())
             if self.lexer.sym != Lexer.WHILE:
                 self.error('"while" expected')
             self.lexer.next_tok()

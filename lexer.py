@@ -7,17 +7,18 @@ class Lexer:
         self.file = file
 
 
-    NUM, ID, IF, ELSE, WHILE, DO, LBRA, RBRA, LPAR, RPAR, PLUS, MINUS, LESS, \
-    EQUAL, SEMICOLON, EOF = range(16)
+    NUM, ID, IF, ELSE, WHILE, DO, LBRA, RBRA, LPAR, RPAR, PLUS, MINUS, MULTIPLY, DEVIDE, LESS, MORE, LESS_EQUAL, \
+    MORE_EQUAL, ASSIGN, EQUAL, SEMICOLON, EOF = range(22)
 
-    # специальные символы языка
-    SYMBOLS = {'{': LBRA, '}': RBRA, '=': EQUAL, ';': SEMICOLON, '(': LPAR,
-               ')': RPAR, '+': PLUS, '-': MINUS, '<': LESS}
+    SYMBOLS = {'{': LBRA, '}': RBRA, '=': ASSIGN, ';': SEMICOLON, '(': LPAR, ')': RPAR, '+': PLUS, '-': MINUS,
+               '*': MULTIPLY, '/': DEVIDE, '<': LESS, '>': MORE}
 
-    # ключевые слова
+    TEST_SYMBOLS_LONG = {'==': EQUAL, '>=': MORE_EQUAL, '<=': LESS_EQUAL}
+    TEST_SYMBOLS_SHORT = {'=': ASSIGN, '>': MORE, '<': LESS}
+    TEST_SMB_SHORT = {14: '<', 15: '>', 18: '='}
+
     WORDS = {'if': IF, 'else': ELSE, 'do': DO, 'while': WHILE}
 
-    # текущий символ, считанный из исходника
     ch = ' '  # допустим, первый символ - это пробел
 
     def error(self, msg):
@@ -38,6 +39,9 @@ class Lexer:
             elif self.ch in Lexer.SYMBOLS:
                 self.sym = Lexer.SYMBOLS[self.ch]
                 self.getc()
+                if self.sym in Lexer.TEST_SMB_SHORT and self.ch in Lexer.TEST_SYMBOLS_SHORT:
+                    self.sym = Lexer.TEST_SYMBOLS_LONG[Lexer.TEST_SMB_SHORT[self.sym] + self.ch]
+                    self.getc()
             elif self.ch.isdigit():
                 intval = 0
                 while self.ch.isdigit():
