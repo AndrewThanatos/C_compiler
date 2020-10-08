@@ -1,5 +1,4 @@
-int main(){
-int a;
-a = 3;
-return a;
+int x(){
+    int a=3;
+    return a;
 }

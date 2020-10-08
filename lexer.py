@@ -11,6 +11,8 @@ class Lexer:
 
     def __init__(self, file):
         self.file = file
+        self.line = 1
+        self.row = 1
 
     TYPE = 'TYPE'
     INT = 'INT'
@@ -65,6 +67,7 @@ class Lexer:
 
     def error(self, msg):
         print('Lexer error: ', msg)
+        print(f'Line: {self.line} Row: {self.row}')
         sys.exit(1)
 
     def add_var(self, var_name, var_type):
@@ -72,6 +75,7 @@ class Lexer:
 
     def getc(self):
         self.ch = self.file.read(1)
+        self.row += 1
 
     def next_tok(self):
         self.value = None
@@ -81,6 +85,9 @@ class Lexer:
             if len(self.ch) == 0:
                 self.sym = Lexer.EOF
             elif self.ch.isspace():
+                if self.ch == '\n':
+                    self.line += 1
+                    self.row = 1
                 self.getc()
             elif self.ch in Lexer.SYMBOLS:
                 self.sym = Lexer.SYMBOLS[self.ch]
@@ -117,10 +124,13 @@ class Lexer:
                 elif ident in Lexer.TYPES:
                     self.sym = Lexer.TYPE
                     self.value = Lexer.TYPES[ident]
-                else:
+                elif len(ident) == 1:
                     self.sym = Lexer.ID
-                    self.value = hash_var(ident)
+                    # self.value = hash_var(ident)
+                    self.value = ord(ident) - ord('a')
                     self.var_name = ident
+                else:
+                    self.error('Unknown identifier: ' + ident)
             elif self.ch == Lexer.QUOTES:
                 str_val = ''
                 self.getc()

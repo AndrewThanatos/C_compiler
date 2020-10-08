@@ -47,6 +47,7 @@ class Parser:
 
     def error(self, msg):
         print('Parser error:', msg)
+        print(f'Line: {self.lexer.line} Row: {self.lexer.row}')
         sys.exit(1)
 
     def check_types(self, node):
@@ -183,6 +184,9 @@ class Parser:
             n.op2 = self.paren_expr()
             if self.lexer.sym != Lexer.SEMICOLON:
                 self.error('";" expected')
+        elif self.lexer.sym == Lexer.RETURN:
+            self.lexer.next_tok()
+            n = Node(kind=Parser.RETURN, op2=self.statement())
         elif self.lexer.sym == Lexer.SEMICOLON:
             n = Node(kind=Parser.EMPTY)
             self.lexer.next_tok()
@@ -192,9 +196,6 @@ class Parser:
             while self.lexer.sym != Lexer.RBRA:
                 n = Node(kind=Parser.SEQ, op1=n, op2=self.statement())
             self.lexer.next_tok()
-        elif self.lexer.sym == Lexer.RETURN:
-            self.lexer.next_tok()
-            n = Node(kind=Parser.RETURN, op2=self.expr())
         else:
             n = Node(kind=Parser.EXPR, op1=self.expr())
             if self.lexer.sym != Lexer.SEMICOLON:
