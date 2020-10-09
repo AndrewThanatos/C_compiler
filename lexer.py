@@ -124,13 +124,11 @@ class Lexer:
                 elif ident in Lexer.TYPES:
                     self.sym = Lexer.TYPE
                     self.value = Lexer.TYPES[ident]
-                elif len(ident) == 1:
-                    self.sym = Lexer.ID
-                    # self.value = hash_var(ident)
-                    self.value = ord(ident) - ord('a')
-                    self.var_name = ident
                 else:
-                    self.error('Unknown identifier: ' + ident)
+                    self.sym = Lexer.ID
+                    self.value = int(hash(ident) % 10e7)
+                    # self.value = ord(ident) - ord('a')
+                    self.var_name = ident
             elif self.ch == Lexer.QUOTES:
                 str_val = ''
                 self.getc()

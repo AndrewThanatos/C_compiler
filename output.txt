@@ -1,0 +1,44 @@
+mov eax, 12 
+push eax 
+mov eax, 34 
+push eax 
+pop ebx 
+pop eax 
+add eax, ebx 
+push eax 
+mov eax, 12 
+push eax 
+pop ebx 
+pop eax 
+imul eax, ebx 
+push eax 
+mov eax, 43 
+push eax 
+mov eax, 35 
+push eax 
+pop ebx 
+pop eax 
+add eax, ebx 
+push eax 
+mov eax, 3 
+push eax 
+pop ebx 
+pop eax 
+imul eax, ebx 
+push eax 
+mov eax, 34 
+push eax 
+mov eax, 12 
+push eax 
+pop ebx 
+pop eax 
+imul eax, ebx 
+push eax 
+pop ebx 
+pop eax 
+sub eax, ebx 
+push eax 
+pop ebx 
+pop eax 
+add eax, ebx 
+push eax 

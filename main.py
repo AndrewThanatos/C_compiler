@@ -1,5 +1,6 @@
 from parcer import Parser
 from lexer import Lexer
+from compiler import Compiler, VirtualMachine
 
 
 
@@ -7,5 +8,12 @@ if __name__ == '__main__':
     file = open('input.txt', 'r')
     L = Lexer(file)
     P = Parser(L)
+    C = Compiler()
+    V = VirtualMachine()
     n = P.parse()
-    print(n)
+    comp = C.compile(n)
+    V.run(comp)
+    print(comp)
+
+
+

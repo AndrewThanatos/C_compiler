@@ -39,6 +39,7 @@ class Parser:
 
     SEQ = 'SEQ'
     EXPR = 'EXPR'
+    RETURN_EXPR = 'RETURN_EXPR'
     FUNC = 'FUNC'
     PROG = 'PROG'
 
@@ -186,7 +187,7 @@ class Parser:
                 self.error('";" expected')
         elif self.lexer.sym == Lexer.RETURN:
             self.lexer.next_tok()
-            n = Node(kind=Parser.RETURN, op2=self.statement())
+            n = Node(kind=Parser.RETURN, op1=self.statement())
         elif self.lexer.sym == Lexer.SEMICOLON:
             n = Node(kind=Parser.EMPTY)
             self.lexer.next_tok()
