@@ -1,5 +1,5 @@
 import sys
-from lexer import Lexer
+from lexer import Lexer, VARIABLES
 
 
 class Node:
@@ -21,6 +21,9 @@ class Parser:
     SUB = 'SUB'
     MULT = 'MULT'
     DIV = 'DIV'
+
+    B_AND = 'B_AND'
+    L_AND = 'L_AND'
 
     LESS = 'LESS'
     MORE = 'MORE'
@@ -54,15 +57,15 @@ class Parser:
     def check_types(self, node):
         type_1 = node.op1.ex_type
         type_2 = node.op2.ex_type
-        if type_1 != type_2:
+        if type_1 != type_2 and Lexer.STRING in [type_1, type_2]:
             self.lexer.error(f'cannot do {type_1} to {type_2}')
 
 
     def term(self):
         if self.lexer.sym == Lexer.ID:
-            if self.lexer.value not in Lexer.VARIABLES:
+            if self.lexer.value not in VARIABLES:
                 self.lexer.error('Unknown identifier: ' + self.lexer.var_name)
-            n = Node(kind=Parser.VAR, value=self.lexer.value, ex_type=Lexer.VARIABLES[self.lexer.value])
+            n = Node(kind=Parser.VAR, value=self.lexer.value, ex_type=VARIABLES[self.lexer.value])
             self.lexer.next_tok()
             return n
         elif self.lexer.sym == Lexer.VALUE:
@@ -81,7 +84,7 @@ class Parser:
             self.lexer.next_tok()
             if self.lexer.sym != Lexer.ID:
                 self.lexer.error('variable expected')
-            elif self.lexer.value in Lexer.VARIABLES:
+            elif self.lexer.value in VARIABLES:
                 self.lexer.error(f'variable "{self.lexer.var_name}" already declared')
             n = Node(kind=Parser.VAR, value=self.lexer.value, ex_type=var_type)
             self.lexer.add_var(var_name=self.lexer.value, var_type=var_type)
@@ -118,8 +121,21 @@ class Parser:
             n.ex_type = n.op1.ex_type
         return n
 
-    def test(self):
+    def boolean(self):
         n = self.math()
+        if self.lexer.sym == Lexer.L_AND or self.lexer.sym == Lexer.B_AND:
+            if self.lexer.sym == Lexer.L_AND:
+                kind = Parser.L_AND
+            else:
+                kind = Parser.B_AND
+            self.lexer.next_tok()
+            n = Node(kind=kind, op1=n, op2=self.boolean())
+            self.check_types(n)
+            n.ex_type = n.op1.ex_type
+        return n
+
+    def test(self):
+        n = self.boolean()
         if self.lexer.sym == Lexer.LESS or self.lexer.sym == Lexer.MORE or self.lexer.sym == Lexer.LESS_EQUAL \
                 or self.lexer.sym == Lexer.MORE_EQUAL or self.lexer.sym == Lexer.EQUAL:
             if self.lexer.sym == Lexer.LESS:

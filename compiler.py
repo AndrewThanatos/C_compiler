@@ -1,4 +1,5 @@
 from parcer import Parser
+from lexer import VARIABLES, Lexer
 
 IFETCH = 'IFETCH'
 ISTORE = 'ISTORE'
@@ -7,6 +8,7 @@ IPOP = 'IPOP'
 IADD = 'IADD'
 ISUB = 'ISUB'
 IMUL = 'IMUL'
+IAND = 'IAND'
 IDIV = 'IDIV'
 # todo
 ILT = 'ILT'
@@ -47,6 +49,10 @@ class Compiler:
             self.compile(node.op1)
             self.compile(node.op2)
             self.gen(IDIV)
+        elif node.kind == Parser.L_AND:
+            self.compile(node.op1)
+            self.compile(node.op2)
+            self.gen(IADD)
         # todo
         elif node.kind == Parser.LESS:
             self.compile(node.op1)
@@ -134,17 +140,16 @@ class Compiler:
 
 class VirtualMachine:
 
-    with_argument = ['IFETCH', 'ISTORE', 'IPUSH', 'JZ', 'JNZ', 'JMP']
-
     ASSEMBLY = {
-        'IFETCH': lambda x: f'push dword ptr [{x}] \n',
-        'ISTORE': lambda x: f'pop dword ptr [{x}] \n',
-        'IPUSH': lambda x: f'mov eax, {x} \npush eax \n',
-        'IPOP': lambda: f'pop eax \n',
-        'IADD': lambda: f'pop ebx \npop eax \nadd eax, ebx \npush eax \n',
-        'ISUB': lambda: f'pop ebx \npop eax \nsub eax, ebx \npush eax \n',
-        'IMUL': lambda: f'pop ebx \npop eax \nimul eax, ebx \npush eax \n',
-        'IDIV': lambda: f'pop eax \npop ebx \nxor edx, edx \ndiv ebx \npush eax \n',
+        'IFETCH': lambda x: f'\tpush dword ptr [{x}] \n',
+        'ISTORE': lambda x: f'\tpop dword ptr [{x}] \n',
+        'IPUSH': lambda x: f'\tmov eax, {x} \n\tpush eax \n',
+        'IPOP': lambda: f'\tpop eax \n',
+        'IADD': lambda: f'\tpop ebx \n\tpop eax \n\tadd eax, ebx \n\tpush eax \n',
+        'ISUB': lambda: f'\tpop ebx \n\tpop eax \n\tsub eax, ebx \n\tpush eax \n',
+        'IMUL': lambda: f'\tpop ebx \n\tpop eax \n\timul eax, ebx \n\tpush eax \n',
+        'IDIV': lambda: f'\tpop eax \n\tpop ebx \n\txor edx, edx \n\tdiv ebx \n\tpush eax \n',
+        'IAND': lambda: f'\tpop eax \n\tpop ebx \n\tand edx, edx \n\tpush eax \n',
         # todo
         'ILT': lambda: f'',
         'JZ': lambda x: f'',
@@ -156,15 +161,33 @@ class VirtualMachine:
     def run(self, program):
         file = open('output.txt', 'w+')
         count = 0
+        if 'main' in VARIABLES:
+            del VARIABLES['main']
+
+        file.write('.data\n')
+        file.write('\tCaption1 db "Andrew Berezhniuk", 0\n\tbuf dw ? \n')
+        for var_name, var_type in VARIABLES.items():
+            if var_type == Lexer.STRING:
+                file.write(f'\t{var_name} dword "", 0 \n')
+            else:
+                file.write(f'\t{var_name} dword 0, 0 \n')
+
+
+        file.write('\n.code \n')
+        file.write('otherfunc proc \n')
         while program[count] != HALT:
             command = program[count]
             next_command = program[count + 1]
-            if command in VirtualMachine.with_argument:
+            if command in [IFETCH, ISTORE, IPUSH, JZ, JNZ, JMP]:
                 file.write(VirtualMachine.ASSEMBLY[command](next_command))
                 count += 2
             else:
                 file.write(VirtualMachine.ASSEMBLY[command]())
                 count += 1
+
+        file.write('\tpop eax \n')
+        file.write('\tfn MessageBox, 0, str$(eax), ADDR Caption1, MB_OK \n\tret \n')
+        file.write('otherfunc endp \n')
 
 
 

@@ -1,6 +1,8 @@
 import sys
 import hashlib
 
+VARIABLES = {}
+
 def hash_var(var_name):
     hash_object = hashlib.sha1(var_name.encode())
     hex_dig = hash_object.hexdigest()
@@ -39,29 +41,31 @@ class Lexer:
     MINUS = 'MINUS'
     MULTIPLY = 'MULTIPLY'
     DEVIDE = 'DEVIDE'
+    EXCL_MARK = 'EXCL_MARK'
+    B_AND = 'B_AND'
+    L_AND = 'L_AND'
 
     LESS = 'LESS'
     MORE = 'MORE'
     LESS_EQUAL = 'LESS_EQUAL'
     MORE_EQUAL = 'MORE_EQUAL'
     EQUAL = 'EQUAL'
+    NOT_EQUAL = 'NOT_EQUAL'
 
     EOF = 'EOF'
 
     SYMBOLS = {'{': LBRA, '}': RBRA, '=': ASSIGN, ';': SEMICOLON, '(': LPAR, ')': RPAR, '+': PLUS, '-': MINUS,
-               '*': MULTIPLY, '/': DEVIDE, '<': LESS, '>': MORE}
+               '*': MULTIPLY, '/': DEVIDE, '<': LESS, '>': MORE, '!': EXCL_MARK, '&': B_AND}
 
-    QUOTES = "\'"
+    QUOTES = '\"'
     DOT = '.'
 
-    TEST_SYMBOLS_LONG = {'==': EQUAL, '>=': MORE_EQUAL, '<=': LESS_EQUAL}
+    TEST_SYMBOLS_LONG = {'==': EQUAL, '>=': MORE_EQUAL, '<=': LESS_EQUAL, '!=': NOT_EQUAL, '&&': L_AND}
     TEST_SYMBOLS_SHORT = {'=': ASSIGN, '>': MORE, '<': LESS}
-    TEST_SMB_SHORT = {'LESS': '<', 'MORE': '>', 'ASSIGN': '='}
+    TEST_SMB_SHORT = {'LESS': '<', 'MORE': '>', 'ASSIGN': '=', 'B_AND': '&'}
 
     WORDS = {'if': IF, 'else': ELSE, 'do': DO, 'while': WHILE, 'return': RETURN}
     TYPES = {'int': INT, 'float': FLOAT, 'string': STRING}
-
-    VARIABLES = {}
 
     ch = ' '  # допустим, первый символ - это пробел
 
@@ -71,7 +75,7 @@ class Lexer:
         sys.exit(1)
 
     def add_var(self, var_name, var_type):
-        Lexer.VARIABLES.update({var_name: var_type})
+        VARIABLES.update({var_name: var_type})
 
     def getc(self):
         self.ch = self.file.read(1)
@@ -92,7 +96,8 @@ class Lexer:
             elif self.ch in Lexer.SYMBOLS:
                 self.sym = Lexer.SYMBOLS[self.ch]
                 self.getc()
-                if self.sym in Lexer.TEST_SMB_SHORT and self.ch in Lexer.TEST_SYMBOLS_SHORT:
+                if self.sym in Lexer.TEST_SMB_SHORT \
+                        and Lexer.TEST_SMB_SHORT[self.sym] + self.ch in Lexer.TEST_SYMBOLS_LONG:
                     self.sym = Lexer.TEST_SYMBOLS_LONG[Lexer.TEST_SMB_SHORT[self.sym] + self.ch]
                     self.getc()
             elif self.ch.isdigit():
