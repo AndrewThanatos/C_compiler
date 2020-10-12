@@ -134,25 +134,23 @@ class Compiler:
 
 class VirtualMachine:
 
-
+    with_argument = ['IFETCH', 'ISTORE', 'IPUSH', 'JZ', 'JNZ', 'JMP']
 
     ASSEMBLY = {
-        # todo
-        'IFETCH': lambda x: f'',
-        'ISTORE': lambda x: f'',
-
+        'IFETCH': lambda x: f'push dword ptr [{x}] \n',
+        'ISTORE': lambda x: f'pop dword ptr [{x}] \n',
         'IPUSH': lambda x: f'mov eax, {x} \npush eax \n',
         'IPOP': lambda: f'pop eax \n',
         'IADD': lambda: f'pop ebx \npop eax \nadd eax, ebx \npush eax \n',
         'ISUB': lambda: f'pop ebx \npop eax \nsub eax, ebx \npush eax \n',
         'IMUL': lambda: f'pop ebx \npop eax \nimul eax, ebx \npush eax \n',
-        'IDIV': lambda: f'pop ebx \npop eax \nidiv eax, ebx \npush eax \n',
+        'IDIV': lambda: f'pop eax \npop ebx \nxor edx, edx \ndiv ebx \npush eax \n',
         # todo
-        'ILT': lambda x: f'',
+        'ILT': lambda: f'',
         'JZ': lambda x: f'',
         'JNZ': lambda x: f'',
         'JMP': lambda x: f'',
-        'HALT': lambda x: f''
+        'HALT': lambda: f''
     }
 
     def run(self, program):
@@ -160,8 +158,9 @@ class VirtualMachine:
         count = 0
         while program[count] != HALT:
             command = program[count]
-            if program[count] == IPUSH:
-                file.write(VirtualMachine.ASSEMBLY[command](program[count+1]))
+            next_command = program[count + 1]
+            if command in VirtualMachine.with_argument:
+                file.write(VirtualMachine.ASSEMBLY[command](next_command))
                 count += 2
             else:
                 file.write(VirtualMachine.ASSEMBLY[command]())

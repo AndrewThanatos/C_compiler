@@ -112,6 +112,7 @@ class Lexer:
 
                 if not flag:
                     value = intval + value / pow(10, len(str(value)))
+                    value = int(value)
                 self.value = value
                 self.sym = Lexer.VALUE
             elif self.ch.isalpha():
@@ -126,7 +127,7 @@ class Lexer:
                     self.value = Lexer.TYPES[ident]
                 else:
                     self.sym = Lexer.ID
-                    self.value = int(hash(ident) % 10e7)
+                    self.value = ident
                     # self.value = ord(ident) - ord('a')
                     self.var_name = ident
             elif self.ch == Lexer.QUOTES:
