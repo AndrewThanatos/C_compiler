@@ -5,7 +5,7 @@ from compiler import Compiler, VirtualMachine
 
 
 if __name__ == '__main__':
-    file = open('input.txt', 'r')
+    file = open('main.c', 'r')
     L = Lexer(file)
     P = Parser(L)
     C = Compiler()
@@ -13,7 +13,6 @@ if __name__ == '__main__':
     n = P.parse()
     comp = C.compile(n)
     V.run(comp)
-    print(comp)
 
 
 

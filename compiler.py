@@ -159,7 +159,7 @@ class VirtualMachine:
     }
 
     def run(self, program):
-        file = open('output.txt', 'w+')
+        file = open('main.asm', 'w+')
         count = 0
         if 'main' in VARIABLES:
             del VARIABLES['main']
