@@ -189,6 +189,11 @@ class VirtualMachine:
         file.write('\tfn MessageBox, 0, str$(eax), ADDR Caption1, MB_OK \n\tret \n')
         file.write('otherfunc endp \n')
 
+        file.close()
+        file = open('main.asm', 'r')
+        new_file = open('output.txt', 'w+')
+        new_file.write(file.read())
+
 
 
 
