@@ -115,6 +115,12 @@ class Lexer:
                         flag = False
                         self.getc()
 
+                if value == 0 and self.ch == 'b':
+                    self.getc()
+                    while self.ch.isdigit():
+                        value = value * 2 + int(self.ch)
+                        self.getc()
+
                 if not flag:
                     value = intval + value / pow(10, len(str(value)))
                     value = int(value)
