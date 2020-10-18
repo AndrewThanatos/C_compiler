@@ -10,6 +10,7 @@ ISUB = 'ISUB'
 IMUL = 'IMUL'
 IAND = 'IAND'
 IDIV = 'IDIV'
+IMINUS = 'IMINUS'
 # todo
 ILT = 'ILT'
 JZ = 'JZ'
@@ -53,6 +54,9 @@ class Compiler:
             self.compile(node.op1)
             self.compile(node.op2)
             self.gen(IADD)
+        elif node.kind == Parser.U_MINUS:
+            self.compile(node.op1)
+            self.gen(IMINUS)
         # todo
         elif node.kind == Parser.LESS:
             self.compile(node.op1)
@@ -150,6 +154,7 @@ class VirtualMachine:
         'IMUL': lambda: f'\tpop ebx \n\tpop eax \n\timul eax, ebx \n\tpush eax \n',
         'IDIV': lambda: f'\tpop eax \n\tpop ebx \n\txor edx, edx \n\tdiv ebx \n\tpush eax \n',
         'IAND': lambda: f'\tpop eax \n\tpop ebx \n\tand edx, edx \n\tpush eax \n',
+        'IMINUS': lambda: f'\tpop eax \n\tmov ebx, -1 \n\timul eax, ebx \n\tpush eax \n',
         # todo
         'ILT': lambda: f'',
         'JZ': lambda x: f'',

@@ -1,4 +1,4 @@
 int main() {
-    return 10.32;
+    return 15 / -(8 / -2);
 }
 

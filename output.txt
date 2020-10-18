@@ -4,7 +4,29 @@
 
 .code 
 otherfunc proc 
-	mov eax, 10 
+	mov eax, 15 
+	push eax 
+	mov eax, 8 
+	push eax 
+	mov eax, 2 
+	push eax 
+	pop eax 
+	mov ebx, -1 
+	imul eax, ebx 
+	push eax 
+	pop eax 
+	pop ebx 
+	xor edx, edx 
+	div ebx 
+	push eax 
+	pop eax 
+	mov ebx, -1 
+	imul eax, ebx 
+	push eax 
+	pop eax 
+	pop ebx 
+	xor edx, edx 
+	div ebx 
 	push eax 
 	pop eax 
 	fn MessageBox, 0, str$(eax), ADDR Caption1, MB_OK 

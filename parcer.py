@@ -24,6 +24,7 @@ class Parser:
 
     B_AND = 'B_AND'
     L_AND = 'L_AND'
+    U_MINUS = 'U_MINUS'
 
     LESS = 'LESS'
     MORE = 'MORE'
@@ -60,7 +61,6 @@ class Parser:
         if type_1 != type_2 and Lexer.STRING in [type_1, type_2]:
             self.lexer.error(f'cannot do {type_1} to {type_2}')
 
-
     def term(self):
         if self.lexer.sym == Lexer.ID:
             if self.lexer.value not in VARIABLES:
@@ -89,6 +89,11 @@ class Parser:
             n = Node(kind=Parser.VAR, value=self.lexer.value, ex_type=var_type)
             self.lexer.add_var(var_name=self.lexer.value, var_type=var_type)
             self.lexer.next_tok()
+            return n
+        elif self.lexer.sym in Lexer.BOOLEAN:
+            self.lexer.next_tok()
+            op1 = self.expr()
+            n = Node(kind=Parser.U_MINUS, op1=op1, ex_type=op1.ex_type)
             return n
         elif self.lexer.sym == Lexer.LPAR:
             return self.paren_expr()
@@ -126,7 +131,9 @@ class Parser:
         if self.lexer.sym == Lexer.L_AND or self.lexer.sym == Lexer.B_AND:
             if self.lexer.sym == Lexer.L_AND:
                 kind = Parser.L_AND
-            else:
+            elif self.lexer.sym == Lexer.B_AND:
+                kind = Parser.B_AND
+            elif self.lexer.sym == Lexer.MINUS:
                 kind = Parser.B_AND
             self.lexer.next_tok()
             n = Node(kind=kind, op1=n, op2=self.boolean())

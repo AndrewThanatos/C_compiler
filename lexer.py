@@ -64,6 +64,8 @@ class Lexer:
     TEST_SYMBOLS_SHORT = {'=': ASSIGN, '>': MORE, '<': LESS}
     TEST_SMB_SHORT = {'LESS': '<', 'MORE': '>', 'ASSIGN': '=', 'B_AND': '&'}
 
+    BOOLEAN = [MINUS, B_AND]
+
     WORDS = {'if': IF, 'else': ELSE, 'do': DO, 'while': WHILE, 'return': RETURN}
     TYPES = {'int': INT, 'float': FLOAT, 'string': STRING}
 
