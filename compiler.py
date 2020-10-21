@@ -133,7 +133,8 @@ class Compiler:
             self.gen(IPOP)
         elif node.kind == Parser.RETURN:
             self.compile(node.op1)
-            self.program.pop()
+            if self.program:
+                self.program.pop()
         elif node.kind == Parser.FUNC:
             self.compile(node.op2)
         elif node.kind == Parser.PROG:
@@ -177,6 +178,9 @@ class VirtualMachine:
             else:
                 file.write(f'\t{var_name} dword 0, 0 \n')
 
+        flag = True
+        if len(program) == 1:
+            flag = False
 
         file.write('\n.code \n')
         file.write('otherfunc proc \n')
@@ -189,9 +193,9 @@ class VirtualMachine:
             else:
                 file.write(VirtualMachine.ASSEMBLY[command]())
                 count += 1
-
-        file.write('\tpop eax \n')
-        file.write('\tfn MessageBox, 0, str$(eax), ADDR Caption1, MB_OK \n\tret \n')
+        if flag:
+            file.write('\tpop eax \n')
+            file.write('\tfn MessageBox, 0, str$(eax), ADDR Caption1, MB_OK \n\tret \n')
         file.write('otherfunc endp \n')
 
         file.close()

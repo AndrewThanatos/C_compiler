@@ -72,6 +72,9 @@ class Lexer:
     ch = ' '  # допустим, первый символ - это пробел
 
     def error(self, msg):
+        with open('output.txt', 'w+') as f:
+            f.write(f'Lexer error: {msg}\n')
+            f.write(f'Line: {self.line} Row: {self.row}')
         print('Lexer error: ', msg)
         print(f'Line: {self.line} Row: {self.row}')
         sys.exit(1)
@@ -93,7 +96,7 @@ class Lexer:
             elif self.ch.isspace():
                 if self.ch == '\n':
                     self.line += 1
-                    self.row = 1
+                    self.row = -1
                 self.getc()
             elif self.ch in Lexer.SYMBOLS:
                 self.sym = Lexer.SYMBOLS[self.ch]
