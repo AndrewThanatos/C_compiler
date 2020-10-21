@@ -165,7 +165,7 @@ class VirtualMachine:
     }
 
     def run(self, program):
-        file = open('main.asm', 'w+')
+        file = open('1-01-Python-IV-82-Berezhniuk.asm', 'w+')
         count = 0
         if 'main' in VARIABLES:
             del VARIABLES['main']
@@ -199,8 +199,8 @@ class VirtualMachine:
         file.write('otherfunc endp \n')
 
         file.close()
-        file = open('main.asm', 'r')
-        new_file = open('output.txt', 'w+')
+        file = open('1-01-Python-IV-82-Berezhniuk.asm', 'r')
+        new_file = open('1-01-Python-IV-82-Berezhniuk.txt', 'w+')
         new_file.write(file.read())
 
 

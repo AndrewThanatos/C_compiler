@@ -1,2 +1,0 @@
-Lexer error: Unknown identifier: bbbb
-Line: 3 Row: 8

@@ -51,7 +51,7 @@ class Parser:
         self.lexer = lexer
 
     def error(self, msg):
-        with open('output.txt', 'w+') as f:
+        with open('1-01-Python-IV-82-Berezhniuk.txt', 'w+') as f:
             f.write(f'Lexer error: {msg}\n')
             f.write(f'Line: {self.lexer.line} Row: {self.lexer.row}')
         print('Parser error:', msg)
