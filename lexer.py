@@ -75,12 +75,12 @@ class Lexer:
         print(f'{type.title()} error: {msg}')
         print(f'Error in line {self.line}:')
 
-        read_file = open('1-01-Python-IV-82-Berezhniuk.c', 'r')
+        read_file = open('1-01-Python-IV-82-Berezhniuk.txt', 'r')
         data = read_file.readline()
         for i in range(self.line - 1):
             data = read_file.readline()
 
-        with open('1-01-Python-IV-82-Berezhniuk.txt', 'w+') as f:
+        with open('error.txt', 'w+') as f:
             f.write(f'{type.title()} error: {msg}\n')
             f.write(f'Error in line {self.line}:\n')
             f.write(f'\t{data}')
