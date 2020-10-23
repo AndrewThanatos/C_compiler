@@ -14,7 +14,7 @@ class Lexer:
     def __init__(self, file):
         self.file = file
         self.line = 1
-        self.row = 1
+        self.row = -1
 
     TYPE = 'TYPE'
     INT = 'INT'
@@ -69,14 +69,24 @@ class Lexer:
     WORDS = {'if': IF, 'else': ELSE, 'do': DO, 'while': WHILE, 'return': RETURN}
     TYPES = {'int': INT, 'float': FLOAT, 'string': STRING}
 
-    ch = ' '  # допустим, первый символ - это пробел
+    ch = ' '
 
-    def error(self, msg):
+    def error(self, msg, type='lexer'):
+        print(f'{type.title()} error: {msg}')
+        print(f'Error in line {self.line}:')
+
+        read_file = open('1-01-Python-IV-82-Berezhniuk.c', 'r')
+        data = read_file.readline()
+        for i in range(self.line - 1):
+            data = read_file.readline()
+
         with open('1-01-Python-IV-82-Berezhniuk.txt', 'w+') as f:
-            f.write(f'Lexer error: {msg}\n')
-            f.write(f'Line: {self.line} Row: {self.row}')
-        print('Lexer error: ', msg)
-        print(f'Line: {self.line} Row: {self.row}')
+            f.write(f'{type.title()} error: {msg}\n')
+            f.write(f'Error in line {self.line}:\n')
+            f.write(f'\t{data}')
+
+        print(f'\t{data}')
+        read_file.close()
         sys.exit(1)
 
     def add_var(self, var_name, var_type):

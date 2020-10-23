@@ -51,12 +51,7 @@ class Parser:
         self.lexer = lexer
 
     def error(self, msg):
-        with open('1-01-Python-IV-82-Berezhniuk.txt', 'w+') as f:
-            f.write(f'Lexer error: {msg}\n')
-            f.write(f'Line: {self.lexer.line} Row: {self.lexer.row}')
-        print('Parser error:', msg)
-        print(f'Line: {self.lexer.line} Row: {self.lexer.row}')
-        sys.exit(1)
+        self.lexer.error(msg, 'parser')
 
     def check_types(self, node):
         type_1 = node.op1.ex_type
@@ -67,7 +62,7 @@ class Parser:
     def term(self):
         if self.lexer.sym == Lexer.ID:
             if self.lexer.value not in VARIABLES:
-                self.lexer.error('Unknown identifier: ' + self.lexer.var_name)
+                self.lexer.error('unknown identifier: ' + self.lexer.var_name)
             n = Node(kind=Parser.VAR, value=self.lexer.value, ex_type=VARIABLES[self.lexer.value])
             self.lexer.next_tok()
             return n
@@ -234,5 +229,5 @@ class Parser:
         self.lexer.next_tok()
         node = Node(kind=Parser.PROG, op1=self.expr())
         if (self.lexer.sym != Lexer.EOF):
-            self.error("Invalid statement syntax")
+            self.error("invalid statement syntax")
         return node
