@@ -197,11 +197,7 @@ class VirtualMachine:
             file.write('\tpop eax \n')
             file.write('\tfn MessageBox, 0, str$(eax), ADDR Caption1, MB_OK \n\tret \n')
         file.write('otherfunc endp \n')
-
         file.close()
-        file = open('1-01-Python-IV-82-Berezhniuk.asm', 'r')
-        new_file = open('1-01-Python-IV-82-Berezhniuk.txt', 'w+')
-        new_file.write(file.read())
 
 
 

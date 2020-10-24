@@ -1,12 +1,6 @@
 import sys
-import hashlib
 
 VARIABLES = {}
-
-def hash_var(var_name):
-    hash_object = hashlib.sha1(var_name.encode())
-    hex_dig = hash_object.hexdigest()
-    return hex_dig
 
 
 class Lexer:
@@ -19,6 +13,7 @@ class Lexer:
     TYPE = 'TYPE'
     INT = 'INT'
     FLOAT = 'FLOAT'
+    CHAR = 'CHAR'
     STRING = 'STRING'
 
     VALUE = 'VALUE'
@@ -58,6 +53,7 @@ class Lexer:
                '*': MULTIPLY, '/': DEVIDE, '<': LESS, '>': MORE, '!': EXCL_MARK, '&': B_AND}
 
     QUOTES = '\"'
+    QUOTE = '\''
     DOT = '.'
 
     TEST_SYMBOLS_LONG = {'==': EQUAL, '>=': MORE_EQUAL, '<=': LESS_EQUAL, '!=': NOT_EQUAL, '&&': L_AND}
@@ -67,7 +63,7 @@ class Lexer:
     BOOLEAN = [MINUS, B_AND]
 
     WORDS = {'if': IF, 'else': ELSE, 'do': DO, 'while': WHILE, 'return': RETURN}
-    TYPES = {'int': INT, 'float': FLOAT, 'string': STRING}
+    TYPES = {'int': INT, 'float': FLOAT, 'char': CHAR, 'string': STRING}
 
     ch = ' '
 
@@ -124,7 +120,7 @@ class Lexer:
                     self.getc()
                     if self.ch == Lexer.DOT:
                         if not flag:
-                            self.error('Invalid expression')
+                            self.error('(SyntaxError) invalid expression')
                         intval = value
                         value = 0
                         flag = False
@@ -138,7 +134,6 @@ class Lexer:
 
                 if not flag:
                     value = intval + value / pow(10, len(str(value)))
-                    value = int(value)
                 self.value = value
                 self.sym = Lexer.VALUE
             elif self.ch.isalpha():
@@ -154,19 +149,25 @@ class Lexer:
                 else:
                     self.sym = Lexer.ID
                     self.value = ident
-                    # self.value = ord(ident) - ord('a')
                     self.var_name = ident
             elif self.ch == Lexer.QUOTES:
                 str_val = ''
                 self.getc()
                 while self.ch != Lexer.QUOTES and len(self.ch) != 0:
                     if len(self.ch) == 0:
-                        self.error("expected '")
+                        self.error("(SyntaxError) expected \'")
                     str_val += self.ch
                     self.getc()
                 self.sym = Lexer.VALUE
                 self.value = str_val
                 self.getc()
-
+            elif self.ch == Lexer.QUOTE:
+                self.getc()
+                self.sym = Lexer.VALUE
+                self.value = self.ch
+                self.getc()
+                if self.ch != Lexer.QUOTE:
+                    self.error('(SyntaxError) expected \'')
+                self.getc()
             else:
-                self.error('Unexpected symbol: ' + self.ch)
+                self.error(f'(SyntaxError) unexpected symbol {self.ch}')
