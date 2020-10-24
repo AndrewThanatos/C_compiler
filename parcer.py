@@ -43,7 +43,6 @@ class Parser:
 
     SEQ = 'SEQ'
     EXPR = 'EXPR'
-    RETURN_EXPR = 'RETURN_EXPR'
     FUNC = 'FUNC'
     PROG = 'PROG'
 
@@ -171,7 +170,7 @@ class Parser:
         return n
 
     def expr(self):
-        if self.lexer.sym != Lexer.ID and self.lexer.sym not in Lexer.TYPE:
+        if self.lexer.sym != Lexer.ID and self.lexer.sym != Lexer.TYPE:
             return self.test()
         n = self.test()
         if n.kind == Parser.VAR and self.lexer.sym == Lexer.ASSIGN:
