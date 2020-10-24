@@ -62,7 +62,6 @@ class Parser:
                 or (type_1 in self.NUM_TYPES and type_2 in self.STR_TYPES):
             self.lexer.error(f'(TypeError) must be {type_1}, not {type_2}')
 
-    @property
     def term(self):
         if self.lexer.sym == Lexer.ID:
             if self.lexer.value not in VARIABLES:
@@ -109,7 +108,7 @@ class Parser:
             self.lexer.error('(SyntaxError) unexpected expresion')
 
     def multy(self):
-        n = self.term
+        n = self.term()
         if self.lexer.sym == Lexer.MULTIPLY or self.lexer.sym == Lexer.DEVIDE:
             if self.lexer.sym == Lexer.MULTIPLY:
                 kind = Parser.MULT
