@@ -85,8 +85,8 @@ class Lexer:
         read_file.close()
         sys.exit(1)
 
-    def add_var(self, var_name, var_type):
-        VARIABLES.update({var_name: var_type})
+    def add_var(self, var_name, var_type, initialized=False):
+        VARIABLES.update({var_name: {'var_type': var_type, 'initialized': initialized}})
 
     def getc(self):
         self.ch = self.file.read(1)
