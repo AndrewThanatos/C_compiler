@@ -1,5 +1,68 @@
 import sys
-from lexer import Lexer, VARIABLES
+from lexer import Lexer
+
+
+class Variable:
+    def __init__(self, name, var_type, initialized=False):
+        self.name = name
+        self.var_type = var_type
+        self.initialized = initialized
+
+
+class Variables:
+    def __init__(self):
+        self.variables = []
+        self.level = 0
+
+    def get_level(self, level):
+        var = self.variables
+        for i in range(level):
+            var = var[-1]
+        return var
+
+    def add_variable(self, name, var_type, initialized=False):
+        env = self.get_level(self.level)
+        env.append(Variable(name, var_type, initialized))
+
+    def new_level(self):
+        env = self.get_level(self.level)
+        self.level += 1
+        env.append([])
+
+    def prev_level(self):
+        self.level -= 1
+
+    def get_variable(self, name):
+        for level in range(self.level, -1, -1):
+            for item in self.get_level(level):
+                if type(item) != list and item.name == name:
+                    return item
+        return None
+
+    def is_define(self, name):
+        return bool(self.get_variable(name))
+
+    def is_define_locally(self, name):
+        for item in self.get_level(self.level):
+            if type(item) != list and item.name == name:
+                return True
+
+        return None
+
+    def is_initialized(self, name):
+        var = self.get_variable(name)
+        if var:
+            return var.initialized
+        else:
+            return None
+
+    def get_type(self, name):
+        var = self.get_variable(name)
+        return var.var_type
+
+    def initialize(self, name):
+        var = self.get_variable(name)
+        var.initialized = True
 
 
 class Node:
@@ -51,6 +114,7 @@ class Parser:
 
     def __init__(self, lexer):
         self.lexer = lexer
+        self.vars = Variables()
 
     def error(self, msg):
         self.lexer.error(msg, 'parser')
@@ -62,9 +126,9 @@ class Parser:
         kind_2 = node.op2.kind
         value_1 = node.op1.value
         value_2 = node.op2.value
-        if kind_1 == Parser.VAR and not VARIABLES[value_1]['initialized']:
+        if kind_1 == Parser.VAR and not self.vars.is_initialized(value_1):
             self.lexer.error(f'(TypeError) variable \'{value_1}\' not initialized')
-        if kind_2 == Parser.VAR and not VARIABLES[value_2]['initialized']:
+        if kind_2 == Parser.VAR and not self.vars.is_initialized(value_2):
             self.lexer.error(f'(TypeError) variable \'{value_2}\' not initialized')
         if (type_1 in self.STR_TYPES and type_2 in self.NUM_TYPES) \
                 or (type_1 in self.NUM_TYPES and type_2 in self.STR_TYPES):
@@ -72,9 +136,9 @@ class Parser:
 
     def term(self):
         if self.lexer.sym == Lexer.ID:
-            if self.lexer.value not in VARIABLES:
+            if not self.vars.is_define(self.lexer.value):
                 self.lexer.error(f'(NameError) name \'{self.lexer.var_name}\' is no defined')
-            n = Node(kind=Parser.VAR, value=self.lexer.value, ex_type=VARIABLES[self.lexer.value]['var_type'])
+            n = Node(kind=Parser.VAR, value=self.lexer.value, ex_type=self.vars.get_type(self.lexer.value))
             self.lexer.next_tok()
             return n
         elif self.lexer.sym == Lexer.VALUE:
@@ -99,10 +163,10 @@ class Parser:
             self.lexer.next_tok()
             if self.lexer.sym != Lexer.ID:
                 self.lexer.error(f'(SyntaxError) variable expected')
-            elif self.lexer.value in VARIABLES:
+            elif self.vars.is_define_locally(self.lexer.value):
                 self.lexer.error(f'(SyntaxError) \'{self.lexer.var_name}\' previously declared here')
             n = Node(kind=Parser.VAR, value=self.lexer.value, ex_type=var_type)
-            self.lexer.add_var(var_name=self.lexer.value, var_type=var_type)
+            self.vars.add_variable(name=self.lexer.value, var_type=var_type)
             self.lexer.next_tok()
             return n
         elif self.lexer.sym in Lexer.BOOLEAN:
@@ -184,9 +248,9 @@ class Parser:
             self.lexer.next_tok()
             op2 = self.expr()
             if n.kind == Parser.VAR:
-                VARIABLES[n.value]['initialized'] = True
+                self.vars.initialize(n.value)
             if op2.kind == Parser.VAR:
-                VARIABLES[op2.value]['initialized'] = True
+                self.vars.initialize(op2.value)
             n = Node(kind=Parser.SET, op1=n, op2=op2)
             self.check_types(n)
             n.ex_type = n.op1.ex_type
@@ -237,8 +301,10 @@ class Parser:
         elif self.lexer.sym == Lexer.LBRA:
             n = Node(kind=Parser.EMPTY)
             self.lexer.next_tok()
+            self.vars.new_level()
             while self.lexer.sym != Lexer.RBRA:
                 n = Node(kind=Parser.SEQ, op1=n, op2=self.statement())
+            self.vars.prev_level()
             self.lexer.next_tok()
         else:
             n = Node(kind=Parser.EXPR, op1=self.expr())

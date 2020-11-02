@@ -1,6 +1,11 @@
 import sys
+import hashlib
 
-VARIABLES = {}
+
+def hash_var(var_name):
+    hash_object = hashlib.sha1(var_name.encode())
+    hex_dig = hash_object.hexdigest()
+    return hex_dig
 
 
 class Lexer:
@@ -84,9 +89,6 @@ class Lexer:
         print(f'\t{data}')
         read_file.close()
         sys.exit(1)
-
-    def add_var(self, var_name, var_type, initialized=False):
-        VARIABLES.update({var_name: {'var_type': var_type, 'initialized': initialized}})
 
     def getc(self):
         self.ch = self.file.read(1)

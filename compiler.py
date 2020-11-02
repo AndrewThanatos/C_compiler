@@ -1,5 +1,7 @@
 from parcer import Parser
-from lexer import VARIABLES, Lexer
+from lexer import Lexer
+
+VARIABLES = {}
 
 IFETCH = 'IFETCH'
 ISTORE = 'ISTORE'
@@ -156,12 +158,12 @@ class VirtualMachine:
         'IDIV': lambda: f'\tpop ebx \n\tpop eax \n\tcdq \n\tidiv ebx \n\tpush eax \n',
         'IAND': lambda: f'\tpop eax \n\tpop ebx \n\tand edx, edx \n\tpush eax \n',
         'IMINUS': lambda: f'\tpop eax \n\tmov ebx, -1 \n\timul eax, ebx \n\tpush eax \n',
+        'HALT': lambda: f'',
         # todo
         'ILT': lambda: f'',
         'JZ': lambda x: f'',
         'JNZ': lambda x: f'',
-        'JMP': lambda x: f'',
-        'HALT': lambda: f''
+        'JMP': lambda x: f''
     }
 
     def run(self, program):

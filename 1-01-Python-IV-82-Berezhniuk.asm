@@ -1,25 +1,20 @@
 .data
 	Caption1 db "Andrew Berezhniuk", 0
 	buf dw ? 
-	b dword 0, 0 
-	a dword 0, 0 
 
 .code 
 otherfunc proc 
-	push dword ptr [b] 
-	pop eax 
-	mov eax, 4 
+	mov eax, 1 
 	push eax 
-	pop dword ptr [b] 
+	pop dword ptr [a] 
 	pop eax 
 	mov eax, 3 
 	push eax 
-	push dword ptr [b] 
-	pop ebx 
+	pop dword ptr [b] 
 	pop eax 
-	add eax, ebx 
+	mov eax, 99 
 	push eax 
-	pop dword ptr [a] 
+	pop dword ptr [c] 
 	pop eax 
 	push dword ptr [a] 
 	mov eax, 3 
@@ -27,6 +22,17 @@ otherfunc proc
 	pop ebx 
 	pop eax 
 	add eax, ebx 
+	push eax 
+	push dword ptr [b] 
+	mov eax, 1 
+	push eax 
+	pop ebx 
+	pop eax 
+	add eax, ebx 
+	push eax 
+	pop ebx 
+	pop eax 
+	imul eax, ebx 
 	push eax 
 	pop eax 
 	fn MessageBox, 0, str$(eax), ADDR Caption1, MB_OK 
