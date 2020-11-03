@@ -86,13 +86,13 @@ class VirtualMachine:
     }
 
     def run(self, program):
-        file = open('2-01-Python-IV-82-Berezhniuk.asm', 'w+')
+        file = open('2-03-Python-IV-82-Borozenets.asm', 'w+')
         count = 0
         if 'main' in VARIABLES:
             del VARIABLES['main']
 
         file.write('.data\n')
-        file.write('\tCaption1 db "Andrew Berezhniuk", 0\n\tbuf dw ? \n')
+        file.write('\tCaption1 db "Borozenets", 0\n\tbuf dw ? \n')
         for var_name in VARIABLES[1:]:
             file.write(f'\t{var_name} dword 0, 0 \n')
 

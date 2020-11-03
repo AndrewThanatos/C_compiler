@@ -1,5 +1,5 @@
 .data
-	Caption1 db "Andrew Berezhniuk", 0
+	Caption1 db "Borozenets", 0
 	buf dw ? 
 
 .code 
