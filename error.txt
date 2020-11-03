@@ -1,3 +1,3 @@
-Lexer error: (SyntaxError) 'a' previously declared here
-Error in line 10:
-	            int a = 3;
+Parser error: (SyntaxError) ';' expected
+Error in line 5:
+	    return -(-a + b) + c;

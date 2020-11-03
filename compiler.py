@@ -1,7 +1,5 @@
-from parcer import Parser
+from parcer import Parser, VARIABLES
 from lexer import Lexer
-
-VARIABLES = {}
 
 IFETCH = 'IFETCH'
 ISTORE = 'ISTORE'
@@ -174,11 +172,8 @@ class VirtualMachine:
 
         file.write('.data\n')
         file.write('\tCaption1 db "Andrew Berezhniuk", 0\n\tbuf dw ? \n')
-        for var_name, var_type in VARIABLES.items():
-            if var_type == Lexer.STRING:
-                file.write(f'\t{var_name} dword "", 0 \n')
-            else:
-                file.write(f'\t{var_name} dword 0, 0 \n')
+        for var_name in VARIABLES[1:]:
+            file.write(f'\t{var_name} dword 0, 0 \n')
 
         flag = True
         if len(program) == 1:
@@ -194,6 +189,8 @@ class VirtualMachine:
                 count += 2
             else:
                 file.write(VirtualMachine.ASSEMBLY[command]())
+                count += 1
+            if command == ISTORE:
                 count += 1
         if flag:
             file.write('\tpop eax \n')

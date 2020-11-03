@@ -1,6 +1,8 @@
 import sys
 from lexer import Lexer
 
+VARIABLES = []
+
 
 class Variable:
     def __init__(self, name, var_type, initialized=False):
@@ -22,7 +24,9 @@ class Variables:
 
     def add_variable(self, name, var_type, initialized=False):
         env = self.get_level(self.level)
+        name = name + str(self.level)
         env.append(Variable(name, var_type, initialized))
+        VARIABLES.append(name)
 
     def new_level(self):
         env = self.get_level(self.level)
@@ -35,7 +39,7 @@ class Variables:
     def get_variable(self, name):
         for level in range(self.level, -1, -1):
             for item in self.get_level(level):
-                if type(item) != list and item.name == name:
+                if type(item) != list and (item.name == name or item.name[:-1] == name):
                     return item
         return None
 
@@ -44,7 +48,7 @@ class Variables:
 
     def is_define_locally(self, name):
         for item in self.get_level(self.level):
-            if type(item) != list and item.name == name:
+            if type(item) != list and (item.name == name or item.name[:-1] == name):
                 return True
 
         return None
@@ -127,9 +131,9 @@ class Parser:
         value_1 = node.op1.value
         value_2 = node.op2.value
         if kind_1 == Parser.VAR and not self.vars.is_initialized(value_1):
-            self.lexer.error(f'(TypeError) variable \'{value_1}\' not initialized')
+            self.lexer.error(f'(TypeError) variable \'{value_1[:-1]}\' not initialized')
         if kind_2 == Parser.VAR and not self.vars.is_initialized(value_2):
-            self.lexer.error(f'(TypeError) variable \'{value_2}\' not initialized')
+            self.lexer.error(f'(TypeError) variable \'{value_2[:-1]}\' not initialized')
         if (type_1 in self.STR_TYPES and type_2 in self.NUM_TYPES) \
                 or (type_1 in self.NUM_TYPES and type_2 in self.STR_TYPES):
             self.lexer.error(f'(TypeError) must be {type_1}, not {type_2}')
@@ -137,8 +141,9 @@ class Parser:
     def term(self):
         if self.lexer.sym == Lexer.ID:
             if not self.vars.is_define(self.lexer.value):
-                self.lexer.error(f'(NameError) name \'{self.lexer.var_name}\' is no defined')
-            n = Node(kind=Parser.VAR, value=self.lexer.value, ex_type=self.vars.get_type(self.lexer.value))
+                self.lexer.error(f'(NameError) name \'{self.lexer.value}\' is no defined')
+            n = Node(kind=Parser.VAR, value=self.lexer.value + str(self.vars.level),
+                     ex_type=self.vars.get_type(self.lexer.value))
             self.lexer.next_tok()
             return n
         elif self.lexer.sym == Lexer.VALUE:
@@ -165,7 +170,7 @@ class Parser:
                 self.lexer.error(f'(SyntaxError) variable expected')
             elif self.vars.is_define_locally(self.lexer.value):
                 self.lexer.error(f'(SyntaxError) \'{self.lexer.var_name}\' previously declared here')
-            n = Node(kind=Parser.VAR, value=self.lexer.value, ex_type=var_type)
+            n = Node(kind=Parser.VAR, value=self.lexer.value + str(self.vars.level), ex_type=var_type)
             self.vars.add_variable(name=self.lexer.value, var_type=var_type)
             self.lexer.next_tok()
             return n

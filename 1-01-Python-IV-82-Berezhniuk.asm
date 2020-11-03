@@ -4,37 +4,31 @@
 
 .code 
 otherfunc proc 
-	mov eax, 1 
+	mov eax, 15 
 	push eax 
-	pop dword ptr [a] 
-	pop eax 
-	mov eax, 3 
+	mov eax, 8 
 	push eax 
-	pop dword ptr [b] 
-	pop eax 
-	mov eax, 99 
+	mov eax, 2 
 	push eax 
-	pop dword ptr [c] 
 	pop eax 
-	push dword ptr [a] 
-	mov eax, 3 
+	mov ebx, -1 
+	imul eax, ebx 
 	push eax 
 	pop ebx 
 	pop eax 
-	add eax, ebx 
-	push eax 
-	push dword ptr [b] 
-	mov eax, 1 
-	push eax 
-	pop ebx 
-	pop eax 
-	add eax, ebx 
+	cdq 
+	idiv ebx 
 	push eax 
 	pop ebx 
 	pop eax 
 	imul eax, ebx 
 	push eax 
 	pop eax 
+	mov ebx, -1 
+	imul eax, ebx 
+	push eax 
+	pop eax
+	mov b, eax
 	fn MessageBox, 0, str$(eax), ADDR Caption1, MB_OK 
 	ret 
 otherfunc endp 

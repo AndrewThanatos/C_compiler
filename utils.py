@@ -6,6 +6,8 @@ colors = ['red', 'blue', 'yellow', 'green', 'cyan']
 def print_block(block, cur_color=0, level=0):
     if block.kind == 'EMPTY':
         return
+    if block.kind == 'VAR':
+        block.value = block.value
     if block.value is not None:
         print(level * '\t', colored('( ', 'magenta'), block.kind,
               '\"' + block.ex_type + '\"' if block.ex_type is not None else '',

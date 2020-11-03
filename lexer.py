@@ -151,7 +151,6 @@ class Lexer:
                 else:
                     self.sym = Lexer.ID
                     self.value = ident
-                    self.var_name = ident
             elif self.ch == Lexer.QUOTES:
                 str_val = ''
                 self.getc()
