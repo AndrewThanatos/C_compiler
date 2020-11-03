@@ -165,7 +165,7 @@ class VirtualMachine:
     }
 
     def run(self, program):
-        file = open('1-01-Python-IV-82-Berezhniuk.asm', 'w+')
+        file = open('3-01-Python-IV-82-Berezhniuk.asm', 'w+')
         count = 0
         if 'main' in VARIABLES:
             del VARIABLES['main']

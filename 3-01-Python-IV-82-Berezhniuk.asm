@@ -27,8 +27,7 @@ otherfunc proc
 	mov ebx, -1 
 	imul eax, ebx 
 	push eax 
-	pop eax
-	mov b, eax
+	pop eax 
 	fn MessageBox, 0, str$(eax), ADDR Caption1, MB_OK 
 	ret 
 otherfunc endp 
