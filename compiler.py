@@ -1,5 +1,4 @@
 from parcer import Parser, VARIABLES
-from lexer import Lexer
 
 IFETCH = 'IFETCH'
 ISTORE = 'ISTORE'
@@ -52,11 +51,6 @@ class Compiler:
         elif node.kind == Parser.U_MINUS:
             self.compile(node.op1)
             self.gen(IMINUS)
-        # todo
-        elif node.kind == Parser.LESS:
-            self.compile(node.op1)
-            self.compile(node.op2)
-            self.gen(ILT)
         elif node.kind == Parser.SEQ:
             self.compile(node.op1)
             self.compile(node.op2)
