@@ -1,5 +1,4 @@
 from parcer import Parser, VARIABLES
-from lexer import Lexer
 
 IFETCH = 'IFETCH'
 ISTORE = 'ISTORE'
@@ -11,11 +10,6 @@ IMUL = 'IMUL'
 IAND = 'IAND'
 IDIV = 'IDIV'
 IMINUS = 'IMINUS'
-# todo
-ILT = 'ILT'
-JZ = 'JZ'
-JNZ = 'JNZ'
-JMP = 'JMP'
 HALT = 'HALT'
 
 
@@ -57,74 +51,6 @@ class Compiler:
         elif node.kind == Parser.U_MINUS:
             self.compile(node.op1)
             self.gen(IMINUS)
-        # todo
-        elif node.kind == Parser.LESS:
-            self.compile(node.op1)
-            self.compile(node.op2)
-            self.gen(ILT)
-        # todo
-        elif node.kind == Parser.MORE:
-            self.compile(node.op1)
-            self.compile(node.op2)
-            self.gen(ILT)
-        # todo
-        elif node.kind == Parser.LESS_EQUAL:
-            self.compile(node.op1)
-            self.compile(node.op2)
-            self.gen(ILT)
-        # todo
-        elif node.kind == Parser.MORE_EQUAL:
-            self.compile(node.op1)
-            self.compile(node.op2)
-            self.gen(ILT)
-        # todo
-        elif node.kind == Parser.EQUAL:
-            self.compile(node.op1)
-            self.compile(node.op2)
-            self.gen(ILT)
-        elif node.kind == Parser.SET:
-            self.compile(node.op2)
-            self.gen(ISTORE)
-            self.gen(node.op1.value)
-        # todo
-        elif node.kind == Parser.IF1:
-            self.compile(node.op1)
-            self.gen(JZ)
-            addr = self.pc
-            self.gen(0)
-            self.compile(node.op2)
-            self.program[addr] = self.pc
-        # todo
-        elif node.kind == Parser.IF2:
-            self.compile(node.op1)
-            self.gen(JZ)
-            addr1 = self.pc
-            self.gen(0)
-            self.compile(node.op2)
-            self.gen(JMP)
-            addr2 = self.pc
-            self.gen(0)
-            self.program[addr1] = self.pc
-            self.compile(node.op3)
-            self.program[addr2] = self.pc
-        # todo
-        elif node.kind == Parser.WHILE:
-            addr1 = self.pc
-            self.compile(node.op1)
-            self.gen(JZ)
-            addr2 = self.pc
-            self.gen(0)
-            self.compile(node.op2)
-            self.gen(JMP)
-            self.gen(addr1)
-            self.program[addr2] = self.pc
-        # todo
-        elif node.kind == Parser.DO:
-            addr = self.pc
-            self.compile(node.op1)
-            self.compile(node.op2)
-            self.gen(JNZ)
-            self.gen(addr)
         elif node.kind == Parser.SEQ:
             self.compile(node.op1)
             self.compile(node.op2)
@@ -157,15 +83,10 @@ class VirtualMachine:
         'IAND': lambda: f'\tpop eax \n\tpop ebx \n\tand edx, edx \n\tpush eax \n',
         'IMINUS': lambda: f'\tpop eax \n\tmov ebx, -1 \n\timul eax, ebx \n\tpush eax \n',
         'HALT': lambda: f'',
-        # todo
-        'ILT': lambda: f'',
-        'JZ': lambda x: f'',
-        'JNZ': lambda x: f'',
-        'JMP': lambda x: f''
     }
 
     def run(self, program):
-        file = open('1-01-Python-IV-82-Berezhniuk.asm', 'w+')
+        file = open('2-01-Python-IV-82-Berezhniuk.asm', 'w+')
         count = 0
         if 'main' in VARIABLES:
             del VARIABLES['main']
@@ -184,7 +105,7 @@ class VirtualMachine:
         while program[count] != HALT:
             command = program[count]
             next_command = program[count + 1]
-            if command in [IFETCH, ISTORE, IPUSH, JZ, JNZ, JMP]:
+            if command in [IFETCH, ISTORE, IPUSH]:
                 file.write(VirtualMachine.ASSEMBLY[command](next_command))
                 count += 2
             else:
