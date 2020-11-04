@@ -174,9 +174,12 @@ class Parser:
             self.vars.add_variable(name=self.lexer.value, var_type=var_type)
             self.lexer.next_tok()
             return n
-        elif self.lexer.sym in Lexer.BOOLEAN:
+        elif self.lexer.sym in Lexer.FIRST_OPERATORS:
             self.lexer.next_tok()
-            op1 = self.expr()
+            if self.lexer.sym == Lexer.LPAR:
+                op1 = self.paren_expr()
+            else:
+                op1 = self.term()
             n = Node(kind=Parser.U_MINUS, op1=op1, ex_type=op1.ex_type)
             return n
         elif self.lexer.sym == Lexer.LPAR:
@@ -212,11 +215,9 @@ class Parser:
 
     def boolean(self):
         n = self.math()
-        if self.lexer.sym == Lexer.L_AND or self.lexer.sym == Lexer.B_AND or self.lexer.sym == Lexer.MINUS:
+        if self.lexer.sym == Lexer.L_AND or self.lexer.sym == Lexer.B_AND:
             if self.lexer.sym == Lexer.L_AND:
                 kind = Parser.L_AND
-            elif self.lexer.sym == Lexer.B_AND:
-                kind = Parser.B_AND
             else:
                 kind = Parser.B_AND
             self.lexer.next_tok()
