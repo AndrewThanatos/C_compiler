@@ -1,3 +1,11 @@
 int main() {
-    return 25 / -(-7 - -2);
+    bool a = 3;
+    if (false){
+     a = 15;
+
+    } else {
+        a = 25;
+       }
+
+    return a;
 }

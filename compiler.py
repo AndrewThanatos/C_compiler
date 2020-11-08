@@ -11,12 +11,19 @@ IMUL = 'IMUL'
 IAND = 'IAND'
 IDIV = 'IDIV'
 IMINUS = 'IMINUS'
+HALT = 'HALT'
+CMP = 'CMP'
+JL = 'JL'
+JLE = 'JLE'
+JG = 'JG'
+JGE = 'JGE'
+JE = 'JE'
+ADDR = 'ADDR'
 # todo
 ILT = 'ILT'
 JZ = 'JZ'
 JNZ = 'JNZ'
 JMP = 'JMP'
-HALT = 'HALT'
 
 
 class Compiler:
@@ -57,56 +64,51 @@ class Compiler:
         elif node.kind == Parser.U_MINUS:
             self.compile(node.op1)
             self.gen(IMINUS)
-        # todo
         elif node.kind == Parser.LESS:
             self.compile(node.op1)
             self.compile(node.op2)
-            self.gen(ILT)
-        # todo
+            self.gen(CMP)
+            self.gen(JL)
         elif node.kind == Parser.MORE:
             self.compile(node.op1)
             self.compile(node.op2)
-            self.gen(ILT)
-        # todo
+            self.gen(CMP)
+            self.gen(JG)
         elif node.kind == Parser.LESS_EQUAL:
             self.compile(node.op1)
             self.compile(node.op2)
-            self.gen(ILT)
-        # todo
+            self.gen(CMP)
+            self.gen(JLE)
         elif node.kind == Parser.MORE_EQUAL:
             self.compile(node.op1)
             self.compile(node.op2)
-            self.gen(ILT)
-        # todo
+            self.gen(CMP)
+            self.gen(JGE)
         elif node.kind == Parser.EQUAL:
             self.compile(node.op1)
             self.compile(node.op2)
-            self.gen(ILT)
+            self.gen(CMP)
+            self.gen(JE)
         elif node.kind == Parser.SET:
             self.compile(node.op2)
             self.gen(ISTORE)
             self.gen(node.op1.value)
-        # todo
         elif node.kind == Parser.IF1:
             self.compile(node.op1)
             self.gen(JZ)
-            addr = self.pc
-            self.gen(0)
+            self.gen('else')
             self.compile(node.op2)
-            self.program[addr] = self.pc
+            self.gen(ADDR)
+            self.gen('else')
         # todo
         elif node.kind == Parser.IF2:
             self.compile(node.op1)
             self.gen(JZ)
-            addr1 = self.pc
-            self.gen(0)
+            self.gen('else')
             self.compile(node.op2)
-            self.gen(JMP)
-            addr2 = self.pc
-            self.gen(0)
-            self.program[addr1] = self.pc
+            self.gen(ADDR)
+            self.gen('else')
             self.compile(node.op3)
-            self.program[addr2] = self.pc
         # todo
         elif node.kind == Parser.WHILE:
             addr1 = self.pc
@@ -143,7 +145,10 @@ class Compiler:
         return self.program
 
 
-class VirtualMachine:
+class VM:
+
+    def __init__(self):
+        self.addr_count = 0
 
     ASSEMBLY = {
         'IFETCH': lambda x: f'\tpush dword ptr [{x}] \n',
@@ -156,10 +161,17 @@ class VirtualMachine:
         'IDIV': lambda: f'\tpop ebx \n\tpop eax \n\tcdq \n\tidiv ebx \n\tpush eax \n',
         'IAND': lambda: f'\tpop eax \n\tpop ebx \n\tand edx, edx \n\tpush eax \n',
         'IMINUS': lambda: f'\tpop eax \n\tmov ebx, -1 \n\timul eax, ebx \n\tpush eax \n',
-        'HALT': lambda: f'',
+        'CMP': lambda: f'\tpop eax \n\tpop ebx \n\tcmp ebx, eax \n',
+        'JL': lambda x: f'\tmov eax, 1 \n\tjl _true_{x} \n\tmov eax, 0 \n _true_{x}: \n\tpush eax \n',
+        'JLE': lambda x: f'\tmov eax, 1 \n\tjle _true_{x} \n\tmov eax, 0 \n _true_{x}: \n\tpush eax \n',
+        'JG': lambda x: f'\tmov eax, 1 \n\tjg _true_{x} \n\tmov eax, 0 \n _true_{x}: \n\tpush eax \n',
+        'JGE': lambda x: f'\tmov eax, 1 \n\tjge _true_{x} \n\tmov eax, 0 \n _true_{x}: \n\tpush eax \n',
+        'JE': lambda x: f'\tmov eax, 1 \n\tje _true_{x} \n\tmov eax, 0 \n _true_{x}: \n\tpush eax \n',
+        'JZ': lambda x: f'\tpop eax \n\tcmp eax, 0 \n\tjz {x} \n',
+        'ADDR': lambda x: f' {x}: \n',
+        'HALT': lambda x: f'',
         # todo
         'ILT': lambda: f'',
-        'JZ': lambda x: f'',
         'JNZ': lambda x: f'',
         'JMP': lambda x: f''
     }
@@ -169,6 +181,20 @@ class VirtualMachine:
         count = 0
         if 'main' in VARIABLES:
             del VARIABLES['main']
+
+        file.write('.586\n')
+        file.write('.model flat, stdcall\n')
+        file.write('\n')
+        file.write('option casemap: none\n')
+        file.write('\n')
+        file.write(r'include \masm32\include\kernel32.inc' + '\n')
+        file.write(r'include \masm32\include\user32.inc' + '\n')
+        file.write(r'include \masm32\include\windows.inc' + '\n')
+        file.write(r'include \masm32\include\masm32rt.inc' + '\n')
+        file.write('\n')
+        file.write(r'includelib \masm32\lib\kernel32.lib' + '\n')
+        file.write(r'includelib \masm32\lib\user32.lib' + '\n')
+        file.write('\n\n')
 
         file.write('.data\n')
         file.write('\tCaption1 db "Andrew Berezhniuk", 0\n\tbuf dw ? \n')
@@ -184,11 +210,22 @@ class VirtualMachine:
         while program[count] != HALT:
             command = program[count]
             next_command = program[count + 1]
-            if command in [IFETCH, ISTORE, IPUSH, JZ, JNZ, JMP]:
-                file.write(VirtualMachine.ASSEMBLY[command](next_command))
+            if command in [IFETCH, ISTORE, IPUSH]:
+                file.write(VM.ASSEMBLY[command](next_command))
+                count += 2
+            elif command in [JL, JG, JLE, JGE, JE]:
+                self.addr_count += 1
+                file.write(VM.ASSEMBLY[command](self.addr_count))
+                count += 1
+            elif command in [JZ]:
+                self.addr_count += 1
+                file.write(VM.ASSEMBLY[command](f'_{next_command}_{self.addr_count}'))
+                count += 2
+            elif command in [ADDR]:
+                file.write(VM.ASSEMBLY[command](f'_{next_command}_{self.addr_count}'))
                 count += 2
             else:
-                file.write(VirtualMachine.ASSEMBLY[command]())
+                file.write(VM.ASSEMBLY[command]())
                 count += 1
             if command == ISTORE:
                 count += 1
@@ -196,8 +233,12 @@ class VirtualMachine:
             file.write('\tpop eax \n')
             file.write('\tfn MessageBox, 0, str$(eax), ADDR Caption1, MB_OK \n\tret \n')
         file.write('otherfunc endp \n')
+        file.write('\n\n')
+        file.write('main:\n')
+        file.write('\tinvoke otherfunc\n')
+        file.write('\tinvoke ExitProcess, 0\n')
+        file.write('end main\n')
         file.close()
-
 
 
 

@@ -1,6 +1,6 @@
 from parcer import Parser
 from lexer import Lexer
-from compiler import Compiler, VirtualMachine
+from compiler import Compiler, VM
 from utils import print_block
 import sys
 
@@ -14,7 +14,7 @@ if __name__ == '__main__':
     L = Lexer(file)
     P = Parser(L)
     C = Compiler()
-    V = VirtualMachine()
+    V = VM()
     n = P.parse()
     comp = C.compile(n)
     print_block(n)

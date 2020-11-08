@@ -118,6 +118,7 @@ class Parser:
 
     def __init__(self, lexer):
         self.lexer = lexer
+        self.is_func = False
         self.vars = Variables()
 
     def error(self, msg):
@@ -131,17 +132,17 @@ class Parser:
         value_1 = node.op1.value
         value_2 = node.op2.value
         if kind_1 == Parser.VAR and not self.vars.is_initialized(value_1):
-            self.lexer.error(f'(TypeError) variable \'{value_1[:-1]}\' not initialized')
+            self.error(f'(TypeError) variable \'{value_1[:-1]}\' not initialized')
         if kind_2 == Parser.VAR and not self.vars.is_initialized(value_2):
-            self.lexer.error(f'(TypeError) variable \'{value_2[:-1]}\' not initialized')
+            self.error(f'(TypeError) variable \'{value_2[:-1]}\' not initialized')
         if (type_1 in self.STR_TYPES and type_2 in self.NUM_TYPES) \
                 or (type_1 in self.NUM_TYPES and type_2 in self.STR_TYPES):
-            self.lexer.error(f'(TypeError) must be {type_1}, not {type_2}')
+            self.error(f'(TypeError) must be {type_1}, not {type_2}')
 
     def term(self):
         if self.lexer.sym == Lexer.ID:
             if not self.vars.is_define(self.lexer.value):
-                self.lexer.error(f'(NameError) name \'{self.lexer.value}\' is no defined')
+                self.error(f'(NameError) name \'{self.lexer.value}\' is no defined')
             n = Node(kind=Parser.VAR, value=self.lexer.value + str(self.vars.level),
                      ex_type=self.vars.get_type(self.lexer.value))
             self.lexer.next_tok()
@@ -153,6 +154,9 @@ class Parser:
                 val_type = Lexer.INT
             if type(self.lexer.value) is float:
                 val_type = Lexer.FLOAT
+                val_value = int(self.lexer.value)
+            if type(self.lexer.value) is bool:
+                val_type = Lexer.BOOL
                 val_value = int(self.lexer.value)
             if type(self.lexer.value) is str:
                 if len(self.lexer.value) == 1:
@@ -167,9 +171,9 @@ class Parser:
             var_type = self.lexer.value
             self.lexer.next_tok()
             if self.lexer.sym != Lexer.ID:
-                self.lexer.error(f'(SyntaxError) variable expected')
+                self.error(f'(SyntaxError) variable expected')
             elif self.vars.is_define_locally(self.lexer.value):
-                self.lexer.error(f'(SyntaxError) \'{self.lexer.var_name}\' previously declared here')
+                self.error(f'(SyntaxError) \'{self.lexer.var_name}\' previously declared here')
             n = Node(kind=Parser.VAR, value=self.lexer.value + str(self.vars.level), ex_type=var_type)
             self.vars.add_variable(name=self.lexer.value, var_type=var_type)
             self.lexer.next_tok()
@@ -185,7 +189,7 @@ class Parser:
         elif self.lexer.sym == Lexer.LPAR:
             return self.paren_expr()
         else:
-            self.lexer.error('(SyntaxError) unexpected expresion')
+            self.error('(SyntaxError) unexpected expresion')
 
     def multy(self):
         n = self.term()
@@ -241,9 +245,8 @@ class Parser:
             else:
                 kind = Parser.EQUAL
             self.lexer.next_tok()
-            n = Node(kind=kind, op1=n, op2=self.math())
+            n = Node(kind=kind, ex_type=self.lexer.BOOL, op1=n, op2=self.math())
             self.check_types(n)
-            n.ex_type = n.op1.ex_type
         return n
 
     def expr(self):
@@ -281,11 +284,13 @@ class Parser:
     def statement(self):
         if self.lexer.sym == Lexer.IF:
             self.lexer.next_tok()
+            self.is_func = True
             n = Node(kind=Parser.IF1, op1=self.paren_expr(), op2=self.statement())
             if self.lexer.sym == Lexer.ELSE:
                 n.kind = Parser.IF2
                 self.lexer.next_tok()
                 n.op3 = self.statement()
+            self.is_func = False
         elif self.lexer.sym == Lexer.WHILE:
             self.lexer.next_tok()
             n = Node(kind=Parser.WHILE, op1=self.paren_expr(), op2=self.statement())
@@ -307,10 +312,12 @@ class Parser:
         elif self.lexer.sym == Lexer.LBRA:
             n = Node(kind=Parser.EMPTY)
             self.lexer.next_tok()
-            self.vars.new_level()
+            if not self.is_func:
+                self.vars.new_level()
             while self.lexer.sym != Lexer.RBRA:
                 n = Node(kind=Parser.SEQ, op1=n, op2=self.statement())
-            self.vars.prev_level()
+            if not self.is_func:
+                self.vars.prev_level()
             self.lexer.next_tok()
         else:
             n = Node(kind=Parser.EXPR, op1=self.expr())

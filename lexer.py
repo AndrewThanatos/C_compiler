@@ -14,12 +14,19 @@ class Lexer:
         self.file = file
         self.line = 1
         self.row = -1
+        self.value = None
+        self.var_name = None
+        self.sym = None
 
     TYPE = 'TYPE'
     INT = 'INT'
     FLOAT = 'FLOAT'
     CHAR = 'CHAR'
     STRING = 'STRING'
+    BOOL = 'BOOL'
+
+    TRUE = 'TRUE'
+    FALSE = 'FALSE'
 
     VALUE = 'VALUE'
     ID = 'ID'
@@ -67,9 +74,11 @@ class Lexer:
 
     FIRST_OPERATORS = [MINUS]
     BOOLEAN = [B_AND]
+    BOOLEAN_VALUES = {'false': FALSE, 'true': TRUE}
+    BOOLEAN_PYTHON = {'false': False, 'true': True}
 
     WORDS = {'if': IF, 'else': ELSE, 'do': DO, 'while': WHILE, 'return': RETURN}
-    TYPES = {'int': INT, 'float': FLOAT, 'char': CHAR, 'string': STRING}
+    TYPES = {'int': INT, 'float': FLOAT, 'char': CHAR, 'string': STRING, 'bool': BOOL}
 
     ch = ' '
 
@@ -141,7 +150,7 @@ class Lexer:
                 self.sym = Lexer.VALUE
             elif self.ch.isalpha():
                 ident = ''
-                while self.ch.isalpha():
+                while self.ch.isalpha() or self.ch.isdigit() or self.ch == '_':
                     ident = ident + self.ch.lower()
                     self.getc()
                 if ident in Lexer.WORDS:
@@ -149,6 +158,9 @@ class Lexer:
                 elif ident in Lexer.TYPES:
                     self.sym = Lexer.TYPE
                     self.value = Lexer.TYPES[ident]
+                elif ident in self.BOOLEAN_VALUES:
+                    self.sym = self.VALUE
+                    self.value = self.BOOLEAN_PYTHON[ident]
                 else:
                     self.sym = Lexer.ID
                     self.value = ident
