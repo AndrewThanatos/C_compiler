@@ -15,26 +15,44 @@ includelib \masm32\lib\user32.lib
 .data
 	Caption1 db "Andrew Berezhniuk", 0
 	buf dw ? 
-	a1 dword 0, 0 
+	flag1 dword 0, 0 
+	cnt1 dword 0, 0 
+	b2 dword 0, 0 
+	c3 dword 0, 0 
 
 .code 
 otherfunc proc 
-	mov eax, 3 
-	push eax 
-	pop dword ptr [a1] 
 	mov eax, 0 
 	push eax 
+	pop dword ptr [flag1] 
+	mov eax, 100 
+	push eax 
+	pop dword ptr [cnt1] 
+	push dword ptr [flag1] 
 	pop eax 
 	cmp eax, 0 
 	jz _else_1 
-	mov eax, 15 
+	mov eax, 13 
 	push eax 
-	pop dword ptr [a1] 
+	pop dword ptr [b2] 
+	mov eax, 2 
+	push eax 
+	push dword ptr [b2] 
+	pop ebx 
+	pop eax 
+	imul eax, ebx 
+	push eax 
+	pop dword ptr [c3] 
+	push dword ptr [b2] 
  _else_1: 
-	mov eax, 25 
+	push dword ptr [cnt1] 
+	mov eax, 4 
 	push eax 
-	pop dword ptr [a1] 
-	push dword ptr [a1] 
+	pop ebx 
+	pop eax 
+	cdq 
+	idiv ebx 
+	push eax 
 	pop eax 
 	fn MessageBox, 0, str$(eax), ADDR Caption1, MB_OK 
 	ret 

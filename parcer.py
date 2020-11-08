@@ -37,8 +37,10 @@ class Variables:
         self.level -= 1
 
     def get_variable(self, name):
+        name = name + str(self.level)
         for level in range(self.level, -1, -1):
             for item in self.get_level(level):
+                name = name[:-1] + str(level)
                 if type(item) != list and (item.name == name or item.name[:-1] == name):
                     return item
         return None
@@ -54,7 +56,7 @@ class Variables:
         return None
 
     def is_initialized(self, name):
-        var = self.get_variable(name)
+        var = self.get_variable(name[:-1])
         if var:
             return var.initialized
         else:
@@ -65,15 +67,16 @@ class Variables:
         return var.var_type
 
     def initialize(self, name):
-        var = self.get_variable(name)
+        var = self.get_variable(name[:-1])
         var.initialized = True
 
 
 class Node:
-    def __init__(self, kind, value=None, ex_type=None, op1=None, op2=None, op3=None):
+    def __init__(self, kind, value=None, ex_type=None, cur_func=None, op1=None, op2=None, op3=None):
         self.kind = kind
         self.value = value
         self.ex_type = ex_type
+        self.cur_func = cur_func
         self.op1 = op1
         self.op2 = op2
         self.op3 = op3
@@ -120,6 +123,7 @@ class Parser:
         self.lexer = lexer
         self.is_func = False
         self.vars = Variables()
+        self.cur_func = None
 
     def error(self, msg):
         self.lexer.error(msg, 'parser')
@@ -143,7 +147,7 @@ class Parser:
         if self.lexer.sym == Lexer.ID:
             if not self.vars.is_define(self.lexer.value):
                 self.error(f'(NameError) name \'{self.lexer.value}\' is no defined')
-            n = Node(kind=Parser.VAR, value=self.lexer.value + str(self.vars.level),
+            n = Node(kind=Parser.VAR, value=self.vars.get_variable(self.lexer.value).name,
                      ex_type=self.vars.get_type(self.lexer.value))
             self.lexer.next_tok()
             return n
@@ -173,7 +177,7 @@ class Parser:
             if self.lexer.sym != Lexer.ID:
                 self.error(f'(SyntaxError) variable expected')
             elif self.vars.is_define_locally(self.lexer.value):
-                self.error(f'(SyntaxError) \'{self.lexer.var_name}\' previously declared here')
+                self.error(f'(SyntaxError) \'{self.lexer.value}\' previously declared here')
             n = Node(kind=Parser.VAR, value=self.lexer.value + str(self.vars.level), ex_type=var_type)
             self.vars.add_variable(name=self.lexer.value, var_type=var_type)
             self.lexer.next_tok()
@@ -264,7 +268,9 @@ class Parser:
             self.check_types(n)
             n.ex_type = n.op1.ex_type
         elif n.kind == Parser.VAR and self.lexer.sym == Lexer.LPAR:
-            n = Node(kind=Parser.FUNC, ex_type=n.ex_type, op1=self.paren_expr(), op2=self.statement())
+            self.cur_func = n.value[:-1]
+            n = Node(kind=Parser.FUNC, ex_type=n.ex_type, op1=self.paren_expr(),
+                     op2=self.statement(), cur_func=self.cur_func)
         return n
 
     def paren_expr(self):
@@ -284,13 +290,16 @@ class Parser:
     def statement(self):
         if self.lexer.sym == Lexer.IF:
             self.lexer.next_tok()
-            self.is_func = True
-            n = Node(kind=Parser.IF1, op1=self.paren_expr(), op2=self.statement())
+            # self.is_func = True
+            op1 = self.paren_expr()
+            if op1.kind == self.EMPTY:
+                self.error('(SyntaxError) must be condition in "if" statement')
+            n = Node(kind=Parser.IF1, op1=op1, op2=self.statement())
             if self.lexer.sym == Lexer.ELSE:
                 n.kind = Parser.IF2
                 self.lexer.next_tok()
                 n.op3 = self.statement()
-            self.is_func = False
+            # self.is_func = False
         elif self.lexer.sym == Lexer.WHILE:
             self.lexer.next_tok()
             n = Node(kind=Parser.WHILE, op1=self.paren_expr(), op2=self.statement())
@@ -305,7 +314,7 @@ class Parser:
                 self.error('(SyntaxError) \';\' expected')
         elif self.lexer.sym == Lexer.RETURN:
             self.lexer.next_tok()
-            n = Node(kind=Parser.RETURN, op1=self.statement())
+            n = Node(kind=Parser.RETURN, op1=self.statement(), cur_func=self.cur_func)
         elif self.lexer.sym == Lexer.SEMICOLON:
             n = Node(kind=Parser.EMPTY)
             self.lexer.next_tok()

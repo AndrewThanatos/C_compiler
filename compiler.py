@@ -18,10 +18,10 @@ JLE = 'JLE'
 JG = 'JG'
 JGE = 'JGE'
 JE = 'JE'
+JZ = 'JZ'
 ADDR = 'ADDR'
 # todo
 ILT = 'ILT'
-JZ = 'JZ'
 JNZ = 'JNZ'
 JMP = 'JMP'
 
@@ -32,7 +32,6 @@ class Compiler:
 
     def gen(self, command):
         self.program.append(command)
-        self.pc = self.pc + 1
 
     def compile(self, node):
         if node.kind == Parser.VAR:
@@ -100,7 +99,6 @@ class Compiler:
             self.compile(node.op2)
             self.gen(ADDR)
             self.gen('else')
-        # todo
         elif node.kind == Parser.IF2:
             self.compile(node.op1)
             self.gen(JZ)
@@ -134,6 +132,8 @@ class Compiler:
             self.compile(node.op1)
             self.gen(IPOP)
         elif node.kind == Parser.RETURN:
+            if node.op1.kind == Parser.EMPTY:
+                return
             self.compile(node.op1)
             if self.program:
                 self.program.pop()

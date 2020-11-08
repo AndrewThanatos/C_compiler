@@ -1,3 +1,3 @@
-Parser error: (SyntaxError) 'None' previously declared here
-Error in line 6:
-	        int a = 3;
+Lexer error: (SyntaxError) unexpected symbol ,
+Error in line 2:
+	int main(int a, int b) {
