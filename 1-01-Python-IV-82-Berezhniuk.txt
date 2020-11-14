@@ -1,13 +1,13 @@
+int sum(int a, int b){
+    return a + b;
+}
+
+int mul(int a, int b){
+    return a * b;
+}
+
 int main() {
-    bool flag = false;
-    int cnt = 100;
-    if (flag) {
-        int b = 13;
-        {
-          int c = 2 * b;
-        }
-        return b; 
-    } else {
-        return cnt / 4;
-    }
+    int a = 1;
+    int b = 3;
+    return sum(a, b) + mul(3, 4);
 }

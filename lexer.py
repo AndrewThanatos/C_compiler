@@ -59,10 +59,12 @@ class Lexer:
     EQUAL = 'EQUAL'
     NOT_EQUAL = 'NOT_EQUAL'
 
+    COMA = 'COMA'
+
     EOF = 'EOF'
 
     SYMBOLS = {'{': LBRA, '}': RBRA, '=': ASSIGN, ';': SEMICOLON, '(': LPAR, ')': RPAR, '+': PLUS, '-': MINUS,
-               '*': MULTIPLY, '/': DEVIDE, '<': LESS, '>': MORE, '!': EXCL_MARK, '&': B_AND}
+               '*': MULTIPLY, '/': DEVIDE, '<': LESS, '>': MORE, '!': EXCL_MARK, '&': B_AND, ',': COMA}
 
     QUOTES = '\"'
     QUOTE = '\''

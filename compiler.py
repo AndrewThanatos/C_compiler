@@ -1,4 +1,4 @@
-from parcer import Parser, VARIABLES
+from parcer import Parser, VARIABLES, FUNCTIONS
 from lexer import Lexer
 
 IFETCH = 'IFETCH'
@@ -27,7 +27,10 @@ JMP = 'JMP'
 
 
 class Compiler:
+    funcs = {func: [] for func in FUNCTIONS}
+    funcs_arguments = {func: [] for func in FUNCTIONS}
     program = []
+    cur_func = None
     pc = 0
 
     def gen(self, command):
@@ -107,6 +110,13 @@ class Compiler:
             self.gen(ADDR)
             self.gen('else')
             self.compile(node.op3)
+        elif node.kind == Parser.FUNC_CALL:
+            for i in range(len(node.op1)):
+                self.gen(IPUSH)
+                self.gen(node.op1[i].value)
+                self.gen(ISTORE)
+                self.gen(self.funcs_arguments[node.value.split('_')[0]][i])
+            self.program += self.funcs[node.value.split('_')[0]]
         # todo
         elif node.kind == Parser.WHILE:
             addr1 = self.pc
@@ -138,7 +148,15 @@ class Compiler:
             if self.program:
                 self.program.pop()
         elif node.kind == Parser.FUNC:
+            if self.cur_func:
+                self.funcs[self.cur_func] = self.program
+                self.program = []
+            self.cur_func = node.cur_func
+            args = [arg['value'] for arg in node.op1]
+            self.funcs_arguments[node.cur_func] = args
             self.compile(node.op2)
+            if node.op3:
+                self.compile(node.op3)
         elif node.kind == Parser.PROG:
             self.compile(node.op1)
             self.gen(HALT)
@@ -198,7 +216,7 @@ class VM:
 
         file.write('.data\n')
         file.write('\tCaption1 db "Andrew Berezhniuk", 0\n\tbuf dw ? \n')
-        for var_name in VARIABLES[1:]:
+        for var_name in VARIABLES:
             file.write(f'\t{var_name} dword 0, 0 \n')
 
         flag = True
@@ -227,8 +245,8 @@ class VM:
             else:
                 file.write(VM.ASSEMBLY[command]())
                 count += 1
-            if command == ISTORE:
-                count += 1
+            # if command == ISTORE:
+            #     count += 1
         if flag:
             file.write('\tpop eax \n')
             file.write('\tfn MessageBox, 0, str$(eax), ADDR Caption1, MB_OK \n\tret \n')

@@ -15,7 +15,7 @@ def print_block(block, cur_color=0, level=0):
           '\"' + block.ex_type + '\"' if block.ex_type is not None else '',
           '\"' + block.cur_func + '\"' if block.cur_func is not None else '')
 
-    if block.op1 is not None:
+    if block.op1 is not None and block.kind != 'FUNC_CALL' and block.kind != 'FUNC':
         print_block(block.op1, (cur_color + 1) % len(colors), level + 1)
     if block.op2 is not None:
         print_block(block.op2, (cur_color + 1) % len(colors), level + 1)

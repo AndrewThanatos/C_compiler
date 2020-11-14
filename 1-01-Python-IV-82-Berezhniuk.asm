@@ -15,43 +15,50 @@ includelib \masm32\lib\user32.lib
 .data
 	Caption1 db "Andrew Berezhniuk", 0
 	buf dw ? 
-	flag1 dword 0, 0 
-	cnt1 dword 0, 0 
-	b2 dword 0, 0 
-	c3 dword 0, 0 
+	a_1 dword 0, 0 
+	b_2 dword 0, 0 
+	a_4 dword 0, 0 
+	b_5 dword 0, 0 
+	a_7 dword 0, 0 
+	b_8 dword 0, 0 
 
 .code 
 otherfunc proc 
-	mov eax, 0 
+	mov eax, 1 
 	push eax 
-	pop dword ptr [flag1] 
-	mov eax, 100 
-	push eax 
-	pop dword ptr [cnt1] 
-	push dword ptr [flag1] 
+	pop dword ptr [a_7] 
 	pop eax 
-	cmp eax, 0 
-	jz _else_1 
-	mov eax, 13 
+	mov eax, 3 
 	push eax 
-	pop dword ptr [b2] 
-	mov eax, 2 
+	pop dword ptr [b_8] 
+	pop eax 
+	mov eax, a_7 
 	push eax 
-	push dword ptr [b2] 
+	pop dword ptr [a_1] 
+	mov eax, b_8 
+	push eax 
+	pop dword ptr [b_2] 
+	push dword ptr [a_1] 
+	push dword ptr [b_2] 
+	pop ebx 
+	pop eax 
+	add eax, ebx 
+	push eax 
+	mov eax, 3 
+	push eax 
+	pop dword ptr [a_4] 
+	mov eax, 4 
+	push eax 
+	pop dword ptr [b_5] 
+	push dword ptr [a_4] 
+	push dword ptr [b_5] 
 	pop ebx 
 	pop eax 
 	imul eax, ebx 
 	push eax 
-	pop dword ptr [c3] 
-	push dword ptr [b2] 
- _else_1: 
-	push dword ptr [cnt1] 
-	mov eax, 4 
-	push eax 
 	pop ebx 
 	pop eax 
-	cdq 
-	idiv ebx 
+	add eax, ebx 
 	push eax 
 	pop eax 
 	fn MessageBox, 0, str$(eax), ADDR Caption1, MB_OK 

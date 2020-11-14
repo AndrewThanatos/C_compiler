@@ -2,7 +2,7 @@ import sys
 from lexer import Lexer
 
 VARIABLES = []
-
+FUNCTIONS = []
 
 class Variable:
     def __init__(self, name, var_type, initialized=False):
@@ -15,6 +15,7 @@ class Variables:
     def __init__(self):
         self.variables = []
         self.level = 0
+        self.count = 0
 
     def get_level(self, level):
         var = self.variables
@@ -24,7 +25,8 @@ class Variables:
 
     def add_variable(self, name, var_type, initialized=False):
         env = self.get_level(self.level)
-        name = name + str(self.level)
+        name = name + f'_{self.count}'
+        self.count += 1
         env.append(Variable(name, var_type, initialized))
         VARIABLES.append(name)
 
@@ -37,11 +39,9 @@ class Variables:
         self.level -= 1
 
     def get_variable(self, name):
-        name = name + str(self.level)
         for level in range(self.level, -1, -1):
             for item in self.get_level(level):
-                name = name[:-1] + str(level)
-                if type(item) != list and (item.name == name or item.name[:-1] == name):
+                if type(item) != list and item.name.split('_')[0] == name:
                     return item
         return None
 
@@ -50,13 +50,13 @@ class Variables:
 
     def is_define_locally(self, name):
         for item in self.get_level(self.level):
-            if type(item) != list and (item.name == name or item.name[:-1] == name):
+            if type(item) != list and item.name.split('_')[0] == name:
                 return True
 
         return None
 
     def is_initialized(self, name):
-        var = self.get_variable(name[:-1])
+        var = self.get_variable(name.split('_')[0])
         if var:
             return var.initialized
         else:
@@ -67,7 +67,7 @@ class Variables:
         return var.var_type
 
     def initialize(self, name):
-        var = self.get_variable(name[:-1])
+        var = self.get_variable(name.split('_')[0])
         var.initialized = True
 
 
@@ -114,6 +114,7 @@ class Parser:
     SEQ = 'SEQ'
     EXPR = 'EXPR'
     FUNC = 'FUNC'
+    FUNC_CALL = 'FUNC_CALL'
     PROG = 'PROG'
 
     NUM_TYPES = [Lexer.INT, Lexer.FLOAT]
@@ -124,6 +125,7 @@ class Parser:
         self.is_func = False
         self.vars = Variables()
         self.cur_func = None
+        self.arguments = []
 
     def error(self, msg):
         self.lexer.error(msg, 'parser')
@@ -136,9 +138,9 @@ class Parser:
         value_1 = node.op1.value
         value_2 = node.op2.value
         if kind_1 == Parser.VAR and not self.vars.is_initialized(value_1):
-            self.error(f'(TypeError) variable \'{value_1[:-1]}\' not initialized')
+            self.error(f'(TypeError) variable \'{value_1.split("_")[0]}\' not initialized')
         if kind_2 == Parser.VAR and not self.vars.is_initialized(value_2):
-            self.error(f'(TypeError) variable \'{value_2[:-1]}\' not initialized')
+            self.error(f'(TypeError) variable \'{value_2.split("_")[0]}\' not initialized')
         if (type_1 in self.STR_TYPES and type_2 in self.NUM_TYPES) \
                 or (type_1 in self.NUM_TYPES and type_2 in self.STR_TYPES):
             self.error(f'(TypeError) must be {type_1}, not {type_2}')
@@ -147,9 +149,13 @@ class Parser:
         if self.lexer.sym == Lexer.ID:
             if not self.vars.is_define(self.lexer.value):
                 self.error(f'(NameError) name \'{self.lexer.value}\' is no defined')
-            n = Node(kind=Parser.VAR, value=self.vars.get_variable(self.lexer.value).name,
-                     ex_type=self.vars.get_type(self.lexer.value))
-            self.lexer.next_tok()
+            if self.lexer.value in FUNCTIONS:
+                n = Node(kind=Parser.FUNC_CALL, value=self.vars.get_variable(self.lexer.value).name,
+                         ex_type=self.vars.get_type(self.lexer.value), op1=self.func_arguments_set())
+            else:
+                n = Node(kind=Parser.VAR, value=self.vars.get_variable(self.lexer.value).name,
+                         ex_type=self.vars.get_type(self.lexer.value))
+                self.lexer.next_tok()
             return n
         elif self.lexer.sym == Lexer.VALUE:
             val_type = None
@@ -178,8 +184,8 @@ class Parser:
                 self.error(f'(SyntaxError) variable expected')
             elif self.vars.is_define_locally(self.lexer.value):
                 self.error(f'(SyntaxError) \'{self.lexer.value}\' previously declared here')
-            n = Node(kind=Parser.VAR, value=self.lexer.value + str(self.vars.level), ex_type=var_type)
             self.vars.add_variable(name=self.lexer.value, var_type=var_type)
+            n = Node(kind=Parser.VAR, value=self.vars.get_variable(self.lexer.value).name, ex_type=var_type)
             self.lexer.next_tok()
             return n
         elif self.lexer.sym in Lexer.FIRST_OPERATORS:
@@ -268,10 +274,57 @@ class Parser:
             self.check_types(n)
             n.ex_type = n.op1.ex_type
         elif n.kind == Parser.VAR and self.lexer.sym == Lexer.LPAR:
-            self.cur_func = n.value[:-1]
-            n = Node(kind=Parser.FUNC, ex_type=n.ex_type, op1=self.paren_expr(),
-                     op2=self.statement(), cur_func=self.cur_func)
+            cur_func = n.value.split('_')[0]
+            FUNCTIONS.append(VARIABLES.pop().split('_')[0])
+            op1 = self.func_arguments_create()
+            self.arguments = op1
+            op2 = self.statement()
+            op3 = self.expr() if self.lexer.sym != Lexer.EOF else None
+            n = Node(kind=Parser.FUNC, ex_type=n.ex_type, op1=op1, op2=op2, op3=op3, cur_func=cur_func)
         return n
+
+    def func_arguments_create(self):
+        if self.lexer.sym != Lexer.LPAR:
+            self.error('(SyntaxError) \'(\' expected')
+        self.lexer.next_tok()
+        arguments = []
+        var_type = None
+        count = self.vars.count
+        while self.lexer.sym != Lexer.RPAR:
+            if self.lexer.sym == Lexer.TYPE:
+                var_type = self.lexer.value
+                self.lexer.next_tok()
+            else:
+                self.error('Expected variable type')
+            # self.vars.add_variable(name=self.lexer.value, var_type=var_type)
+            arguments.append({'type': var_type, 'value': self.lexer.value + f'_{count}'})
+            count += 1
+            self.lexer.next_tok()
+            if self.lexer.sym != Lexer.COMA:
+                break
+            else:
+                self.lexer.next_tok()
+        if self.lexer.sym != Lexer.RPAR:
+            self.error('(SyntaxError) \')\' expected')
+        self.lexer.next_tok()
+        return arguments
+
+    def func_arguments_set(self):
+        self.lexer.next_tok()
+        if self.lexer.sym != Lexer.LPAR:
+            self.error('(SyntaxError) \'(\' expected')
+        self.lexer.next_tok()
+        arguments = []
+        while self.lexer.sym != Lexer.RPAR:
+            arguments.append(self.expr())
+            if self.lexer.sym != Lexer.COMA:
+                break
+            else:
+                self.lexer.next_tok()
+        if self.lexer.sym != Lexer.RPAR:
+            self.error('(SyntaxError) \')\' expected')
+        self.lexer.next_tok()
+        return arguments
 
     def paren_expr(self):
         if self.lexer.sym != Lexer.LPAR:
@@ -321,12 +374,12 @@ class Parser:
         elif self.lexer.sym == Lexer.LBRA:
             n = Node(kind=Parser.EMPTY)
             self.lexer.next_tok()
-            if not self.is_func:
-                self.vars.new_level()
+            self.vars.new_level()
+            for value in self.arguments:
+                self.vars.add_variable(value['value'].split('_')[0], value['type'], True)
             while self.lexer.sym != Lexer.RBRA:
                 n = Node(kind=Parser.SEQ, op1=n, op2=self.statement())
-            if not self.is_func:
-                self.vars.prev_level()
+            self.vars.prev_level()
             self.lexer.next_tok()
         else:
             n = Node(kind=Parser.EXPR, op1=self.expr())
