@@ -30,6 +30,7 @@ class Lexer:
 
     VALUE = 'VALUE'
     ID = 'ID'
+    ARITHMETIC_EQUAL = 'ARITHMETIC_EQUAL'
 
     IF = 'IF'
     ELSE = 'ELSE'
@@ -59,6 +60,11 @@ class Lexer:
     EQUAL = 'EQUAL'
     NOT_EQUAL = 'NOT_EQUAL'
 
+    DIV_EQUAL = 'DIV_EQUAL'
+    SUM_EQUAL = 'SUM_EQUAL'
+    MIN_EQUAL = 'MIN_EQUAL'
+    MUL_EQUAL = 'MUL_EQUAL'
+
     COMA = 'COMA'
     QUESTION_MARK = 'QUESTION_MARK'
     DOUBLE_DOT = 'DOUBLE_DOT'
@@ -73,10 +79,13 @@ class Lexer:
     QUOTE = '\''
     DOT = '.'
 
+    ARITHMETIC = {'PLUS': '+', 'MINUS': '-', 'DEVIDE': '/', 'MULTIPLY': '*'}
     TEST_SYMBOLS_LONG = {'==': EQUAL, '>=': MORE_EQUAL, '<=': LESS_EQUAL, '!=': NOT_EQUAL, '&&': L_AND}
+    ARITHMETIC_SYMBOLS_LONG = {'/=': DIV_EQUAL, '*=': MUL_EQUAL, '-=': MIN_EQUAL, '+=': SUM_EQUAL}
     TEST_SYMBOLS_SHORT = {'=': ASSIGN, '>': MORE, '<': LESS}
     TEST_SMB_SHORT = {'LESS': '<', 'MORE': '>', 'ASSIGN': '=', 'B_AND': '&'}
 
+    ARITHMETIC_LONG = [DIV_EQUAL, MUL_EQUAL, MIN_EQUAL, SUM_EQUAL]
     FIRST_OPERATORS = [MINUS]
     BOOLEAN = [B_AND]
     BOOLEAN_VALUES = {'false': FALSE, 'true': TRUE}
@@ -127,6 +136,10 @@ class Lexer:
                 if self.sym in Lexer.TEST_SMB_SHORT \
                         and Lexer.TEST_SMB_SHORT[self.sym] + self.ch in Lexer.TEST_SYMBOLS_LONG:
                     self.sym = Lexer.TEST_SYMBOLS_LONG[Lexer.TEST_SMB_SHORT[self.sym] + self.ch]
+                    self.getc()
+                if self.sym in Lexer.ARITHMETIC \
+                        and Lexer.ARITHMETIC[self.sym] + self.ch in Lexer.ARITHMETIC_SYMBOLS_LONG:
+                    self.sym = Lexer.ARITHMETIC_SYMBOLS_LONG[Lexer.ARITHMETIC[self.sym] + self.ch]
                     self.getc()
             elif self.ch.isdigit():
                 flag = True

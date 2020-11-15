@@ -281,6 +281,24 @@ class Parser:
             op2 = self.statement()
             op3 = self.expr() if self.lexer.sym != Lexer.EOF else None
             n = Node(kind=Parser.FUNC, ex_type=n.ex_type, op1=op1, op2=op2, op3=op3, cur_func=cur_func)
+        elif n.kind == Parser.VAR and self.lexer.sym in Lexer.ARITHMETIC_LONG:
+            if self.lexer.sym in [Lexer.MUL_EQUAL, Lexer.DIV_EQUAL, Lexer.SUM_EQUAL, Lexer.MIN_EQUAL]:
+                if self.lexer.sym == Lexer.MUL_EQUAL:
+                    kind = Parser.MULT
+                elif self.lexer.sym == Lexer.DIV_EQUAL:
+                    kind = Parser.DIV
+                elif self.lexer.sym == Lexer.SUM_EQUAL:
+                    kind = Parser.ADD
+                else:
+                    kind = Parser.SUB
+                self.lexer.next_tok()
+                n = Node(kind=kind, op1=n, op2=self.expr())
+                self.check_types(n)
+                n.ex_type = n.op1.ex_type
+            n = Node(kind=Parser.SET, op1=n.op1, op2=n)
+            self.check_types(n)
+            n.ex_type = n.op1.ex_type
+            return n
         return n
 
     def func_arguments_create(self):
