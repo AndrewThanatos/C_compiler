@@ -295,7 +295,7 @@ class Parser:
                 var_type = self.lexer.value
                 self.lexer.next_tok()
             else:
-                self.error('Expected variable type')
+                self.error('(SyntaxError) expected variable type')
             # self.vars.add_variable(name=self.lexer.value, var_type=var_type)
             arguments.append({'type': var_type, 'value': self.lexer.value + f'_{count}'})
             count += 1
@@ -338,6 +338,16 @@ class Parser:
         if self.lexer.sym != Lexer.RPAR:
             self.error('(SyntaxError) \')\' expected')
         self.lexer.next_tok()
+        if self.lexer.sym == Lexer.QUESTION_MARK:
+            self.lexer.next_tok()
+            op2 = self.expr()
+            if self.lexer.sym != Lexer.DOUBLE_DOT:
+                self.error('(SyntaxError) : expected')
+            self.lexer.next_tok()
+            op3 = self.expr()
+            if op2.kind == Parser.EMPTY or op3.kind == Parser.EMPTY:
+                self.error('(SyntaxError) expresion expected')
+            n = Node(kind=Parser.IF2, op1=n, op2=op2, op3=op3)
         return n
 
     def statement(self):

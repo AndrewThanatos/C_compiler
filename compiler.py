@@ -112,8 +112,7 @@ class Compiler:
             self.compile(node.op3)
         elif node.kind == Parser.FUNC_CALL:
             for i in range(len(node.op1)):
-                self.gen(IPUSH)
-                self.gen(node.op1[i].value)
+                self.compile(node.op1[i])
                 self.gen(ISTORE)
                 self.gen(self.funcs_arguments[node.value.split('_')[0]][i])
             self.program += self.funcs[node.value.split('_')[0]]

@@ -60,11 +60,14 @@ class Lexer:
     NOT_EQUAL = 'NOT_EQUAL'
 
     COMA = 'COMA'
+    QUESTION_MARK = 'QUESTION_MARK'
+    DOUBLE_DOT = 'DOUBLE_DOT'
 
     EOF = 'EOF'
 
     SYMBOLS = {'{': LBRA, '}': RBRA, '=': ASSIGN, ';': SEMICOLON, '(': LPAR, ')': RPAR, '+': PLUS, '-': MINUS,
-               '*': MULTIPLY, '/': DEVIDE, '<': LESS, '>': MORE, '!': EXCL_MARK, '&': B_AND, ',': COMA}
+               '*': MULTIPLY, '/': DEVIDE, '<': LESS, '>': MORE, '!': EXCL_MARK, '&': B_AND, ',': COMA,
+               '?': QUESTION_MARK, ':': DOUBLE_DOT}
 
     QUOTES = '\"'
     QUOTE = '\''
