@@ -20,6 +20,8 @@ JGE = 'JGE'
 JE = 'JE'
 JZ = 'JZ'
 ADDR = 'ADDR'
+FUNC_ADDR = 'FUNC_ADDR'
+JMP_ADDR = 'JMP_ADDR'
 # todo
 ILT = 'ILT'
 JNZ = 'JNZ'
@@ -107,9 +109,13 @@ class Compiler:
             self.gen(JZ)
             self.gen('else')
             self.compile(node.op2)
+            self.gen(JMP_ADDR)
+            self.gen('else_end')
             self.gen(ADDR)
             self.gen('else')
             self.compile(node.op3)
+            self.gen(ADDR)
+            self.gen('else_end')
         elif node.kind == Parser.FUNC_CALL:
             for i in range(len(node.op1)):
                 self.compile(node.op1[i])
@@ -146,8 +152,12 @@ class Compiler:
             self.compile(node.op1)
             if self.program:
                 self.program.pop()
+            self.gen(JMP)
+            self.gen(f'{self.cur_func}_end')
         elif node.kind == Parser.FUNC:
             if self.cur_func:
+                self.gen(ADDR)
+                self.gen(f'{self.cur_func}_end')
                 self.funcs[self.cur_func] = self.program
                 self.program = []
             self.cur_func = node.cur_func
@@ -185,12 +195,12 @@ class VM:
         'JGE': lambda x: f'\tmov eax, 1 \n\tjge _true_{x} \n\tmov eax, 0 \n _true_{x}: \n\tpush eax \n',
         'JE': lambda x: f'\tmov eax, 1 \n\tje _true_{x} \n\tmov eax, 0 \n _true_{x}: \n\tpush eax \n',
         'JZ': lambda x: f'\tpop eax \n\tcmp eax, 0 \n\tjz {x} \n',
+        'JNZ': lambda x: f'\tpop eax \n\tcmp eax, 1 \n\tjz {x} \n',
+        'JMP': lambda x: f'\tjmp _{x}\n',
         'ADDR': lambda x: f' {x}: \n',
         'HALT': lambda x: f'',
         # todo
         'ILT': lambda: f'',
-        'JNZ': lambda x: f'',
-        'JMP': lambda x: f''
     }
 
     def run(self, program):
@@ -227,7 +237,7 @@ class VM:
         while program[count] != HALT:
             command = program[count]
             next_command = program[count + 1]
-            if command in [IFETCH, ISTORE, IPUSH]:
+            if command in [IFETCH, ISTORE, IPUSH, JMP]:
                 file.write(VM.ASSEMBLY[command](next_command))
                 count += 2
             elif command in [JL, JG, JLE, JGE, JE]:
@@ -241,12 +251,21 @@ class VM:
             elif command in [ADDR]:
                 file.write(VM.ASSEMBLY[command](f'_{next_command}_{self.addr_count}'))
                 count += 2
+            elif command in [FUNC_ADDR]:
+                command = ADDR
+                file.write(VM.ASSEMBLY[command](f'_{next_command}'))
+                count += 2
+            elif command in [JMP_ADDR]:
+                command = JMP
+                file.write(VM.ASSEMBLY[command](f'{next_command}_{self.addr_count}'))
+                count += 2
             else:
                 file.write(VM.ASSEMBLY[command]())
                 count += 1
             # if command == ISTORE:
             #     count += 1
         if flag:
+            file.write(' _main_end: \n')
             file.write('\tpop eax \n')
             file.write('\tfn MessageBox, 0, str$(eax), ADDR Caption1, MB_OK \n\tret \n')
         file.write('otherfunc endp \n')

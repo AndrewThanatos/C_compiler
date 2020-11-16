@@ -3,6 +3,7 @@ from lexer import Lexer
 
 VARIABLES = []
 FUNCTIONS = []
+ARGUMENTS = {}
 
 class Variable:
     def __init__(self, name, var_type, initialized=False):
@@ -150,8 +151,14 @@ class Parser:
             if not self.vars.is_define(self.lexer.value):
                 self.error(f'(NameError) name \'{self.lexer.value}\' is no defined')
             if self.lexer.value in FUNCTIONS:
-                n = Node(kind=Parser.FUNC_CALL, value=self.vars.get_variable(self.lexer.value).name,
-                         ex_type=self.vars.get_type(self.lexer.value), op1=self.func_arguments_set())
+                value = self.vars.get_variable(self.lexer.value).name
+                ex_type = self.vars.get_type(self.lexer.value)
+                op1 = self.func_arguments_set()
+                if len(op1) != ARGUMENTS[value.split('_')[0]]:
+                    self.error(f'(SyntaxError) there should be {ARGUMENTS[value.split("_")[0]]} '
+                               f'arguments not {len(op1)}')
+                n = Node(kind=Parser.FUNC_CALL, value=value,
+                         ex_type=ex_type, op1=op1)
             else:
                 n = Node(kind=Parser.VAR, value=self.vars.get_variable(self.lexer.value).name,
                          ex_type=self.vars.get_type(self.lexer.value))
@@ -277,8 +284,11 @@ class Parser:
             cur_func = n.value.split('_')[0]
             FUNCTIONS.append(VARIABLES.pop().split('_')[0])
             op1 = self.func_arguments_create()
+            ARGUMENTS[cur_func] = len(op1)
             self.arguments = op1
             op2 = self.statement()
+            if op2.kind == Parser.EMPTY:
+                self.error(f'(SyntaxError) function \'{cur_func}\' is not defined')
             op3 = self.expr() if self.lexer.sym != Lexer.EOF else None
             n = Node(kind=Parser.FUNC, ex_type=n.ex_type, op1=op1, op2=op2, op3=op3, cur_func=cur_func)
         elif n.kind == Parser.VAR and self.lexer.sym in Lexer.ARITHMETIC_LONG:
