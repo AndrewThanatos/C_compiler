@@ -1,0 +1,23 @@
+int sum(int a){
+    if (true){
+        return a + 100000;
+    }
+    return 0;
+}
+
+int main() {
+    int a = 0;
+    int b = 0;
+    a = sum(a);
+    if (true) {
+        a += 10;
+    } else {
+     a += 1;
+    }
+    if (false){
+        b = 10;
+    } else {
+        b = 100;
+    }
+    return a + b;
+}

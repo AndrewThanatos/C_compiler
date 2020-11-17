@@ -156,7 +156,7 @@ class Compiler:
             self.gen(f'{self.cur_func}_end')
         elif node.kind == Parser.FUNC:
             if self.cur_func:
-                self.gen(ADDR)
+                self.gen(FUNC_ADDR)
                 self.gen(f'{self.cur_func}_end')
                 self.funcs[self.cur_func] = self.program
                 self.program = []
@@ -204,7 +204,7 @@ class VM:
     }
 
     def run(self, program):
-        file = open('1-01-Python-IV-82-Berezhniuk.asm', 'w+')
+        file = open('4-01-Python-IV-82-Berezhniuk.asm', 'w+')
         count = 0
         if 'main' in VARIABLES:
             del VARIABLES['main']
