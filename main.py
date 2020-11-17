@@ -1,7 +1,6 @@
 from parcer import Parser
 from lexer import Lexer
 from compiler import Compiler, VM
-from utils import print_block
 import sys
 
 if __name__ == '__main__':
@@ -17,7 +16,6 @@ if __name__ == '__main__':
     V = VM()
     n = P.parse()
     comp = C.compile(n)
-    print_block(n)
     V.run(comp)
 
 
