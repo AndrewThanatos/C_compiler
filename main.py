@@ -6,7 +6,7 @@ import sys
 
 if __name__ == '__main__':
     try:
-        file = open('1-01-Python-IV-82-Berezhniuk.txt', 'r')
+        file = open('3-03-Python-IV-82-Borozenets.txt', 'r')
     except:
         with open('error.txt', 'w+') as f:
             f.write('Please create file "1-01-Python-IV-82-Berezhniuk.txt"')

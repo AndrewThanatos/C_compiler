@@ -97,21 +97,8 @@ class Lexer:
     ch = ' '
 
     def error(self, msg, type='lexer'):
-        print(f'{type.title()} error: {msg}')
-        print(f'Error in line {self.line}:')
-
-        read_file = open('1-01-Python-IV-82-Berezhniuk.txt', 'r')
-        data = read_file.readline()
-        for i in range(self.line - 1):
-            data = read_file.readline()
-
-        with open('error.txt', 'w+') as f:
-            f.write(f'{type.title()} error: {msg}\n')
-            f.write(f'Error in line {self.line}:\n')
-            f.write(f'\t{data}')
-
-        print(f'\t{data}')
-        read_file.close()
+        print(f'{type.title()} Error: {msg}')
+        print(f'Line {self.line}:')
         sys.exit(1)
 
     def getc(self):
@@ -150,7 +137,7 @@ class Lexer:
                     self.getc()
                     if self.ch == Lexer.DOT:
                         if not flag:
-                            self.error('(SyntaxError) invalid expression')
+                            self.error(' invalid expression')
                         intval = value
                         value = 0
                         flag = False
@@ -187,7 +174,7 @@ class Lexer:
                 self.getc()
                 while self.ch != Lexer.QUOTES and len(self.ch) != 0:
                     if len(self.ch) == 0:
-                        self.error("(SyntaxError) expected \'")
+                        self.error(" expected \'")
                     str_val += self.ch
                     self.getc()
                 self.sym = Lexer.VALUE
@@ -199,7 +186,7 @@ class Lexer:
                 self.value = self.ch
                 self.getc()
                 if self.ch != Lexer.QUOTE:
-                    self.error('(SyntaxError) expected \'')
+                    self.error(' expected \'')
                 self.getc()
             else:
-                self.error(f'(SyntaxError) unexpected symbol {self.ch}')
+                self.error(f' unexpected symbol {self.ch}')
