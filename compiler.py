@@ -209,19 +209,7 @@ class VM:
         if 'main' in VARIABLES:
             del VARIABLES['main']
 
-        file.write('.586\n')
-        file.write('.model flat, stdcall\n')
-        file.write('\n')
-        file.write('option casemap: none\n')
-        file.write('\n')
-        file.write(r'include \masm32\include\kernel32.inc' + '\n')
-        file.write(r'include \masm32\include\user32.inc' + '\n')
-        file.write(r'include \masm32\include\windows.inc' + '\n')
-        file.write(r'include \masm32\include\masm32rt.inc' + '\n')
-        file.write('\n')
-        file.write(r'includelib \masm32\lib\kernel32.lib' + '\n')
-        file.write(r'includelib \masm32\lib\user32.lib' + '\n')
-        file.write('\n\n')
+
 
         file.write('.data\n')
         file.write('\tCaption1 db "Borozenets D.", 0\n\tbuf dw ? \n')
@@ -266,14 +254,7 @@ class VM:
             #     count += 1
         if flag:
             file.write(' _main_end: \n')
-            file.write('\tpop eax \n')
-            file.write('\tfn MessageBox, 0, str$(eax), ADDR Caption1, MB_OK \n\tret \n')
-        file.write('otherfunc endp \n')
-        file.write('\n\n')
-        file.write('main:\n')
-        file.write('\tinvoke otherfunc\n')
-        file.write('\tinvoke ExitProcess, 0\n')
-        file.write('end main\n')
+
         file.close()
 
 
