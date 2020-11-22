@@ -112,6 +112,7 @@ class Lexer:
 
         print(f'\t{data}')
         read_file.close()
+        input('\nPress Enter to exit')
         sys.exit(1)
 
     def getc(self):

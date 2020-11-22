@@ -12,7 +12,7 @@ int main() {
     if (true) {
         a += 10;
     } else {
-     a += 1;
+     a += ;
     }
     if (false){
         b = 10;
