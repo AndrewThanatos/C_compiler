@@ -19,18 +19,22 @@ includelib \masm32\lib\user32.lib
 	b_2 dword 0, 0 
 	a_4 dword 0, 0 
 	b_5 dword 0, 0 
+	a_7 dword 0, 0 
+	b_8 dword 0, 0 
 
 .code 
 otherfunc proc 
 	mov eax, 1 
 	push eax 
-	pop dword ptr [a_4] 
-	mov eax, 2 
-	push eax 
-	pop dword ptr [b_5] 
-	pop dword ptr [a_1] 
+	pop dword ptr [a_7] 
+	pop eax 
 	mov eax, 3 
 	push eax 
+	pop dword ptr [b_8] 
+	pop eax 
+	push dword ptr [a_7] 
+	pop dword ptr [a_1] 
+	push dword ptr [b_8] 
 	pop dword ptr [b_2] 
 	push dword ptr [a_1] 
 	push dword ptr [b_2] 
@@ -38,6 +42,28 @@ otherfunc proc
 	pop eax 
 	add eax, ebx 
 	push eax 
+	jmp _sum_end
+ _sum_end_0: 
+	mov eax, 3 
+	push eax 
+	pop dword ptr [a_4] 
+	mov eax, 4 
+	push eax 
+	pop dword ptr [b_5] 
+	push dword ptr [a_4] 
+	push dword ptr [b_5] 
+	pop ebx 
+	pop eax 
+	imul eax, ebx 
+	push eax 
+	jmp _mul_end
+ _mul_end_0: 
+	pop ebx 
+	pop eax 
+	add eax, ebx 
+	push eax 
+	jmp _main_end
+ _main_end: 
 	pop eax 
 	fn MessageBox, 0, str$(eax), ADDR Caption1, MB_OK 
 	ret 

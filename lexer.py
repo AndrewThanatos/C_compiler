@@ -105,13 +105,9 @@ class Lexer:
         for i in range(self.line - 1):
             data = read_file.readline()
 
-        with open('error.txt', 'w+') as f:
-            f.write(f'{type.title()} error: {msg}\n')
-            f.write(f'Error in line {self.line}:\n')
-            f.write(f'\t{data}')
-
         print(f'\t{data}')
         read_file.close()
+        input('\nPress Enter to exit')
         sys.exit(1)
 
     def getc(self):
