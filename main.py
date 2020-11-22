@@ -7,10 +7,9 @@ if __name__ == '__main__':
     try:
         file = open('4-01-Python-IV-82-Berezhniuk.txt', 'r')
     except:
-        with open('error.txt', 'w+') as f:
-            print('Please create file "4-01-Python-IV-82-Berezhniuk.txt"')
-            input('\nPress Enter to exit')
-            sys.exit(1)
+        print('Please create file "4-01-Python-IV-82-Berezhniuk.txt"')
+        input('\nPress Enter to exit')
+        sys.exit(1)
     L = Lexer(file)
     P = Parser(L)
     C = Compiler()
