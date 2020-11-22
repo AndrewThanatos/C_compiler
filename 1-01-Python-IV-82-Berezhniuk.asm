@@ -15,56 +15,29 @@ includelib \masm32\lib\user32.lib
 .data
 	Caption1 db "Andrew Berezhniuk", 0
 	buf dw ? 
-	a_1 dword 0, 0 
-	b_2 dword 0, 0 
-	a_4 dword 0, 0 
-	b_5 dword 0, 0 
-	a_7 dword 0, 0 
-	b_8 dword 0, 0 
+	func_count dword 0, 0 
 
 .code 
 otherfunc proc 
-	mov eax, 1 
+	jmp __main_start 
+ __main_start: 
+	mov eax, 16 
 	push eax 
-	pop dword ptr [a_7] 
-	pop eax 
-	mov eax, 3 
+	mov eax, 2 
 	push eax 
-	pop dword ptr [b_8] 
-	pop eax 
-	push dword ptr [a_7] 
-	pop dword ptr [a_1] 
-	push dword ptr [b_8] 
-	pop dword ptr [b_2] 
-	push dword ptr [a_1] 
-	push dword ptr [b_2] 
 	pop ebx 
 	pop eax 
-	add eax, ebx 
+	cdq 
+	idiv ebx 
 	push eax 
-	jmp _sum_end
- _sum_end_0: 
-	mov eax, 3 
-	push eax 
-	pop dword ptr [a_4] 
-	mov eax, 4 
-	push eax 
-	pop dword ptr [b_5] 
-	push dword ptr [a_4] 
-	push dword ptr [b_5] 
-	pop ebx 
+	jmp __main_end
+ __main_end: 
+
 	pop eax 
-	imul eax, ebx 
-	push eax 
-	jmp _mul_end
- _mul_end_0: 
-	pop ebx 
-	pop eax 
-	add eax, ebx 
-	push eax 
-	jmp _main_end
- _main_end: 
-	pop eax 
+	jmp _output__ 
+
+ _resume_: 
+ _output__: 
 	fn MessageBox, 0, str$(eax), ADDR Caption1, MB_OK 
 	ret 
 otherfunc endp 

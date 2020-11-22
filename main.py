@@ -18,7 +18,7 @@ if __name__ == '__main__':
     n = P.parse()
     comp = C.compile(n)
     print_block(n)
-    V.run(comp)
+    V.run(comp, C.call_func_count)
     input('\nPress Enter to exit')
 
 

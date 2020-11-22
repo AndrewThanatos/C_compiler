@@ -1,5 +1,6 @@
 from parcer import Parser, VARIABLES, FUNCTIONS
-from lexer import Lexer
+import copy
+
 
 IFETCH = 'IFETCH'
 ISTORE = 'ISTORE'
@@ -21,7 +22,7 @@ JE = 'JE'
 JZ = 'JZ'
 ADDR = 'ADDR'
 FUNC_ADDR = 'FUNC_ADDR'
-JMP_ADDR = 'JMP_ADDR'
+NLINE = 'NLINE'
 # todo
 ILT = 'ILT'
 JNZ = 'JNZ'
@@ -34,6 +35,8 @@ class Compiler:
     program = []
     cur_func = None
     pc = 0
+    level = 0
+    call_func_count = 0
 
     def gen(self, command):
         self.program.append(command)
@@ -98,30 +101,50 @@ class Compiler:
             self.gen(ISTORE)
             self.gen(node.op1.value)
         elif node.kind == Parser.IF1:
+            self.level += 1
+            level = copy.deepcopy(self.level)
             self.compile(node.op1)
             self.gen(JZ)
-            self.gen('else')
+            self.gen(f'_else_{level}')
             self.compile(node.op2)
             self.gen(ADDR)
-            self.gen('else')
+            self.gen(f'_else_{level}')
         elif node.kind == Parser.IF2:
+            self.level += 1
+            level = copy.deepcopy(self.level)
             self.compile(node.op1)
             self.gen(JZ)
-            self.gen('else')
+            self.gen(f'_else_{level}')
             self.compile(node.op2)
-            self.gen(JMP_ADDR)
-            self.gen('else_end')
+            self.gen(JMP)
+            self.gen(f'_else_end_{level}')
             self.gen(ADDR)
-            self.gen('else')
+            self.gen(f'_else_{level}')
             self.compile(node.op3)
             self.gen(ADDR)
-            self.gen('else_end')
+            self.gen(f'_else_end_{level}')
         elif node.kind == Parser.FUNC_CALL:
             for i in range(len(node.op1)):
                 self.compile(node.op1[i])
                 self.gen(ISTORE)
                 self.gen(self.funcs_arguments[node.value.split('_')[0]][i])
-            self.program += self.funcs[node.value.split('_')[0]]
+            # check
+            # self.program += self.funcs[node.value.split('_')[0]]
+            # self.level += 1
+            self.gen(JMP)
+            self.gen(f"__{node.value.split('_')[0]}_start")
+            self.gen(ADDR)
+            self.gen(f'_resume_{self.call_func_count}')
+            self.gen(IFETCH)
+            self.gen('func_count')
+            self.gen(IPUSH)
+            self.gen(1)
+            self.gen(IADD)
+            self.gen(ISTORE)
+            self.gen('func_count')
+
+            self.call_func_count += 1
+
         # todo
         elif node.kind == Parser.WHILE:
             addr1 = self.pc
@@ -153,17 +176,25 @@ class Compiler:
             if self.program:
                 self.program.pop()
             self.gen(JMP)
-            self.gen(f'{self.cur_func}_end')
+            self.gen(f'__{self.cur_func}_end')
+
         elif node.kind == Parser.FUNC:
-            if self.cur_func:
-                self.gen(ADDR)
-                self.gen(f'{self.cur_func}_end')
-                self.funcs[self.cur_func] = self.program
-                self.program = []
+            # check
+            # if self.cur_func:
+                # self.funcs[self.cur_func] = self.program
+                # self.program = []
             self.cur_func = node.cur_func
+            self.gen(ADDR)
+            self.gen(f'__{self.cur_func}_start')
             args = [arg['value'] for arg in node.op1]
             self.funcs_arguments[node.cur_func] = args
             self.compile(node.op2)
+            self.gen(ADDR)
+            self.gen(f'__{self.cur_func}_end')
+            if self.cur_func != 'main':
+                self.gen(JMP)
+                self.gen('_resume_')
+            self.gen(NLINE)
             if node.op3:
                 self.compile(node.op3)
         elif node.kind == Parser.PROG:
@@ -189,6 +220,7 @@ class VM:
         'IAND': lambda: f'\tpop eax \n\tpop ebx \n\tand edx, edx \n\tpush eax \n',
         'IMINUS': lambda: f'\tpop eax \n\tmov ebx, -1 \n\timul eax, ebx \n\tpush eax \n',
         'CMP': lambda: f'\tpop eax \n\tpop ebx \n\tcmp ebx, eax \n',
+        'NLINE': lambda: f'\n',
         'JL': lambda x: f'\tmov eax, 1 \n\tjl _true_{x} \n\tmov eax, 0 \n _true_{x}: \n\tpush eax \n',
         'JLE': lambda x: f'\tmov eax, 1 \n\tjle _true_{x} \n\tmov eax, 0 \n _true_{x}: \n\tpush eax \n',
         'JG': lambda x: f'\tmov eax, 1 \n\tjg _true_{x} \n\tmov eax, 0 \n _true_{x}: \n\tpush eax \n',
@@ -196,14 +228,14 @@ class VM:
         'JE': lambda x: f'\tmov eax, 1 \n\tje _true_{x} \n\tmov eax, 0 \n _true_{x}: \n\tpush eax \n',
         'JZ': lambda x: f'\tpop eax \n\tcmp eax, 0 \n\tjz {x} \n',
         'JNZ': lambda x: f'\tpop eax \n\tcmp eax, 1 \n\tjz {x} \n',
-        'JMP': lambda x: f'\tjmp _{x}\n',
+        'JMP': lambda x: f'\tjmp {x}\n',
         'ADDR': lambda x: f' {x}: \n',
         'HALT': lambda x: f'',
         # todo
         'ILT': lambda: f'',
     }
 
-    def run(self, program):
+    def run(self, program, call_func_count):
         file = open('1-01-Python-IV-82-Berezhniuk.asm', 'w+')
         count = 0
         if 'main' in VARIABLES:
@@ -225,6 +257,7 @@ class VM:
 
         file.write('.data\n')
         file.write('\tCaption1 db "Andrew Berezhniuk", 0\n\tbuf dw ? \n')
+        file.write('\tfunc_count dword 0, 0 \n')
         for var_name in VARIABLES:
             file.write(f'\t{var_name} dword 0, 0 \n')
 
@@ -234,10 +267,11 @@ class VM:
 
         file.write('\n.code \n')
         file.write('otherfunc proc \n')
+        file.write('\tjmp __main_start \n')
         while program[count] != HALT:
             command = program[count]
             next_command = program[count + 1]
-            if command in [IFETCH, ISTORE, IPUSH, JMP]:
+            if command in [IFETCH, ISTORE, IPUSH, JMP, ADDR]:
                 file.write(VM.ASSEMBLY[command](next_command))
                 count += 2
             elif command in [JL, JG, JLE, JGE, JE]:
@@ -245,19 +279,11 @@ class VM:
                 file.write(VM.ASSEMBLY[command](self.addr_count))
                 count += 1
             elif command in [JZ]:
-                self.addr_count += 1
-                file.write(VM.ASSEMBLY[command](f'_{next_command}_{self.addr_count}'))
-                count += 2
-            elif command in [ADDR]:
-                file.write(VM.ASSEMBLY[command](f'_{next_command}_{self.addr_count}'))
+                file.write(VM.ASSEMBLY[command](next_command))
                 count += 2
             elif command in [FUNC_ADDR]:
                 command = ADDR
                 file.write(VM.ASSEMBLY[command](f'_{next_command}'))
-                count += 2
-            elif command in [JMP_ADDR]:
-                command = JMP
-                file.write(VM.ASSEMBLY[command](f'{next_command}_{self.addr_count}'))
                 count += 2
             else:
                 file.write(VM.ASSEMBLY[command]())
@@ -265,8 +291,17 @@ class VM:
             # if command == ISTORE:
             #     count += 1
         if flag:
-            file.write(' _main_end: \n')
             file.write('\tpop eax \n')
+            file.write('\tjmp _output__ \n')
+
+            file.write('\n _resume_: \n')
+            for i in range(call_func_count):
+                file.write('\tpush dword ptr [func_count]\n')
+                file.write('\tpop eax \n')
+                file.write(f'\tcmp eax, {i} \n')
+                file.write(f'\tjz _resume_{i} \n')
+
+            file.write(' _output__: \n')
             file.write('\tfn MessageBox, 0, str$(eax), ADDR Caption1, MB_OK \n\tret \n')
         file.write('otherfunc endp \n')
         file.write('\n\n')

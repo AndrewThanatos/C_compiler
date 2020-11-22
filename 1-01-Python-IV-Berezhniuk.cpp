@@ -1,18 +1,28 @@
 int main() {
-    bool a = 3 > 2;
-    bool b = 1 == 1;
-    int c = 10;
-    if (a){
-        if (b){
-            c  = 20;
-        }
-        if (c < 20){
-            c = 0;
-        } else {
-            c += 50;
-        }
+    int a = 0b10101 + 3;
+    char c = 'c';
+    float testvar = -1;
+    a = (a * 2) / (2 + 1) - 1;
+    if (a > 100) {
+        return 0;
     } else {
-        c = 0;
+    if (a > 10) {
+        {
+            int a = -1;
+            char c = 'z';
+        }
+        if (a == -1){
+            return -1;
+        }
+        a = a * testvar;
+        testvar = 0;
+    } else {
+        return -10;
     }
-    return c;
+    }
+    if (testvar == 0){
+        int newvar = -20;
+        a = (-a * newvar) && (a / newvar);
+    }
+    return a;
 }
