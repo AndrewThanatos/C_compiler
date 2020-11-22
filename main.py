@@ -8,9 +8,9 @@ if __name__ == '__main__':
     try:
         file = open('3-03-Python-IV-82-Borozenets.txt', 'r')
     except:
-        with open('error.txt', 'w+') as f:
-            f.write('Please create file "1-01-Python-IV-82-Berezhniuk.txt"')
-            sys.exit()
+        print('Create input file"')
+        input('\nPress Enter to exit')
+        sys.exit()
     L = Lexer(file)
     P = Parser(L)
     C = Compiler()
@@ -19,6 +19,7 @@ if __name__ == '__main__':
     comp = C.compile(n)
 
     V.run(comp)
+
 
 
 
