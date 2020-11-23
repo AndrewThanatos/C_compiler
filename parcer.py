@@ -127,6 +127,7 @@ class Parser:
         self.vars = Variables()
         self.cur_func = None
         self.arguments = []
+        self.set_arguments = False
 
     def error(self, msg):
         self.lexer.error(msg, 'parser')
@@ -324,7 +325,7 @@ class Parser:
                 self.lexer.next_tok()
             else:
                 self.error('(SyntaxError) expected variable type')
-            # self.vars.add_variable(name=self.lexer.value, var_type=var_type)
+            self.set_arguments = True
             arguments.append({'type': var_type, 'value': self.lexer.value + f'_{count}'})
             count += 1
             self.lexer.next_tok()
@@ -413,8 +414,10 @@ class Parser:
             n = Node(kind=Parser.EMPTY)
             self.lexer.next_tok()
             self.vars.new_level()
-            for value in self.arguments:
-                self.vars.add_variable(value['value'].split('_')[0], value['type'], True)
+            if self.set_arguments:
+                for value in self.arguments:
+                    self.vars.add_variable(value['value'].split('_')[0], value['type'], True)
+            self.set_arguments = False
             while self.lexer.sym != Lexer.RBRA:
                 n = Node(kind=Parser.SEQ, op1=n, op2=self.statement())
             self.vars.prev_level()
