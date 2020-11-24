@@ -6,9 +6,9 @@ import sys
 
 if __name__ == '__main__':
     try:
-        file = open('1-01-Python-IV-82-Berezhniuk.txt', 'r')
+        file = open('5-01-Python-IV-82-Berezhniuk.txt', 'r')
     except:
-            print('Please create file "1-01-Python-IV-82-Berezhniuk.txt"')
+            print('Please create file "5-01-Python-IV-82-Berezhniuk.txt"')
             input('\nPress Enter to exit')
             sys.exit(1)
     L = Lexer(file)
