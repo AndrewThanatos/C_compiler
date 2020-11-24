@@ -17,23 +17,37 @@ includelib \masm32\lib\user32.lib
 	buf dw ? 
 	func_count dword 0, 0 
 	a_1 dword 0, 0 
-	a_3 dword 0, 0 
-	a_5 dword 0, 0 
-	b_7 dword 0, 0 
-	a_8 dword 0, 0 
+	b_2 dword 0, 0 
+	a_4 dword 0, 0 
+	b_5 dword 0, 0 
+	a_7 dword 0, 0 
+	b_8 dword 0, 0 
+	c_9 dword 0, 0 
+	a_11 dword 0, 0 
+	a_13 dword 0, 0 
+	b_14 dword 0, 0 
+	a_16 dword 0, 0 
+	b_17 dword 0, 0 
+	a_19 dword 0, 0 
+	b_20 dword 0, 0 
+	a_22 dword 0, 0 
+	b_23 dword 0, 0 
+	a_25 dword 0, 0 
+	b_26 dword 0, 0 
+	c_27 dword 0, 0 
+	d_28 dword 0, 0 
 
 .code 
 otherfunc proc 
 	jmp __main_start 
- __func_start: 
+ __max_start: 
 	push dword ptr [a_1] 
-	mov eax, 1 
-	push eax 
+	push dword ptr [b_2] 
 	pop eax 
 	pop ebx 
 	cmp ebx, eax 
 	mov eax, 1 
-	je _true_1 
+	jg _true_1 
 	mov eax, 0 
  _true_1: 
 	push eax 
@@ -41,167 +55,169 @@ otherfunc proc
 	cmp eax, 0 
 	jz _else_1 
 	push dword ptr [a_1] 
-	mov eax, 1 
-	push eax 
+	jmp __max_end
+	jmp _else_end_1
+ _else_1: 
+	push dword ptr [b_2] 
+	jmp __max_end
+ _else_end_1: 
+ __max_end: 
+	jmp _resume_
+
+ __min_start: 
+	push dword ptr [a_4] 
+	push dword ptr [b_5] 
 	pop eax 
 	pop ebx 
 	cmp ebx, eax 
 	mov eax, 1 
-	je _true_2 
+	jl _true_2 
 	mov eax, 0 
  _true_2: 
 	push eax 
 	pop eax 
 	cmp eax, 0 
 	jz _else_2 
-	mov eax, 100 
-	push eax 
-	pop dword ptr [a_1] 
-	pop eax 
+	push dword ptr [a_4] 
+	jmp __min_end
 	jmp _else_end_2
  _else_2: 
-	mov eax, 1 
-	push eax 
-	pop eax 
-	mov ebx, -1 
-	imul eax, ebx 
-	push eax 
-	jmp __func_end
+	push dword ptr [b_5] 
+	jmp __min_end
  _else_end_2: 
-	jmp _else_end_1
- _else_1: 
-	mov eax, 1 
-	push eax 
-	pop eax 
-	mov ebx, -1 
-	imul eax, ebx 
-	push eax 
-	jmp __func_end
- _else_end_1: 
-	push dword ptr [a_1] 
-	jmp __func_end
- __func_end: 
+ __min_end: 
 	jmp _resume_
 
- __two_start: 
-	push dword ptr [a_3] 
-	mov eax, 53 
+ __func_start: 
+	push dword ptr [a_7] 
+	mov eax, 1 
+	push eax 
+	pop ebx 
+	pop eax 
+	add eax, ebx 
+	push eax 
+	pop dword ptr [a_7] 
+	pop eax 
+	push dword ptr [b_8] 
+	mov eax, 1 
+	push eax 
+	pop ebx 
+	pop eax 
+	add eax, ebx 
+	push eax 
+	pop dword ptr [b_8] 
+	pop eax 
+	push dword ptr [c_9] 
+	mov eax, 1 
+	push eax 
+	pop ebx 
+	pop eax 
+	sub eax, ebx 
+	push eax 
+	pop dword ptr [c_9] 
+	pop eax 
+	push dword ptr [a_7] 
+	mov eax, 0 
 	push eax 
 	pop eax 
 	pop ebx 
 	cmp ebx, eax 
 	mov eax, 1 
-	je _true_3 
+	jl _true_3 
 	mov eax, 0 
  _true_3: 
 	push eax 
 	pop eax 
 	cmp eax, 0 
 	jz _else_3 
-	push dword ptr [a_3] 
+	push dword ptr [a_7] 
 	mov eax, 1 
+	push eax 
+	pop eax 
+	mov ebx, -1 
+	imul eax, ebx 
+	push eax 
+	pop ebx 
+	pop eax 
+	imul eax, ebx 
+	push eax 
+	pop dword ptr [a_7] 
+	pop eax 
+ _else_3: 
+	push dword ptr [b_8] 
+	mov eax, 0 
 	push eax 
 	pop eax 
 	pop ebx 
 	cmp ebx, eax 
 	mov eax, 1 
-	je _true_4 
+	jl _true_4 
 	mov eax, 0 
  _true_4: 
 	push eax 
 	pop eax 
 	cmp eax, 0 
 	jz _else_4 
-	mov eax, 100 
-	push eax 
-	pop dword ptr [a_3] 
-	pop eax 
-	jmp _else_end_4
- _else_4: 
+	push dword ptr [b_8] 
 	mov eax, 1 
 	push eax 
 	pop eax 
 	mov ebx, -1 
 	imul eax, ebx 
 	push eax 
-	jmp __two_end
- _else_end_4: 
-	jmp _else_end_3
- _else_3: 
-	push dword ptr [a_3] 
-	mov eax, 2 
-	push eax 
 	pop ebx 
 	pop eax 
 	imul eax, ebx 
 	push eax 
-	pop dword ptr [a_3] 
+	pop dword ptr [b_8] 
 	pop eax 
-	push dword ptr [a_3] 
-	mov eax, 1 
+ _else_4: 
+	push dword ptr [c_9] 
+	mov eax, 0 
 	push eax 
 	pop eax 
 	pop ebx 
 	cmp ebx, eax 
 	mov eax, 1 
-	je _true_5 
+	jl _true_5 
 	mov eax, 0 
  _true_5: 
 	push eax 
 	pop eax 
 	cmp eax, 0 
 	jz _else_5 
-	mov eax, 1000 
+	push dword ptr [c_9] 
+	mov eax, 1 
 	push eax 
-	pop dword ptr [a_3] 
 	pop eax 
-	jmp _else_end_5
+	mov ebx, -1 
+	imul eax, ebx 
+	push eax 
+	pop ebx 
+	pop eax 
+	imul eax, ebx 
+	push eax 
+	pop dword ptr [c_9] 
+	pop eax 
  _else_5: 
-	push dword ptr [a_3] 
-	mov eax, 200 
-	push eax 
-	pop eax 
+	push dword ptr [a_7] 
+	push dword ptr [b_8] 
+	push dword ptr [c_9] 
 	pop ebx 
-	cmp ebx, eax 
-	mov eax, 1 
-	je _true_6 
-	mov eax, 0 
- _true_6: 
-	push eax 
 	pop eax 
-	cmp eax, 0 
-	jz _else_6 
-	push dword ptr [a_3] 
-	mov eax, 2 
+	add eax, ebx 
 	push eax 
 	pop ebx 
 	pop eax 
-	imul eax, ebx 
+	add eax, ebx 
 	push eax 
-	jmp __two_end
-	mov eax, 1 
-	push eax 
-	pop eax 
-	mov ebx, -1 
-	imul eax, ebx 
-	push eax 
-	jmp __two_end
- _else_6: 
- _else_end_5: 
- _else_end_3: 
-	mov eax, 1 
-	push eax 
-	pop eax 
-	mov ebx, -1 
-	imul eax, ebx 
-	push eax 
-	jmp __two_end
- __two_end: 
+	jmp __func_end
+ __func_end: 
 	jmp _resume_
 
  __sqr_start: 
-	push dword ptr [a_5] 
-	push dword ptr [a_5] 
+	push dword ptr [a_11] 
+	push dword ptr [a_11] 
 	pop ebx 
 	pop eax 
 	imul eax, ebx 
@@ -210,15 +226,62 @@ otherfunc proc
  __sqr_end: 
 	jmp _resume_
 
- __main_start: 
-	mov eax, 3 
-	push eax 
-	pop dword ptr [b_7] 
+ __sum_start: 
+	push dword ptr [a_13] 
+	push dword ptr [b_14] 
+	pop ebx 
 	pop eax 
-	mov eax, 1 
+	add eax, ebx 
 	push eax 
-	pop dword ptr [a_1] 
-	jmp __func_start
+	jmp __sum_end
+ __sum_end: 
+	jmp _resume_
+
+ __mul_start: 
+	push dword ptr [a_16] 
+	push dword ptr [b_17] 
+	pop ebx 
+	pop eax 
+	imul eax, ebx 
+	push eax 
+	jmp __mul_end
+ __mul_end: 
+	jmp _resume_
+
+ __div_start: 
+	push dword ptr [a_19] 
+	push dword ptr [b_20] 
+	pop ebx 
+	pop eax 
+	cdq 
+	idiv ebx 
+	push eax 
+	jmp __div_end
+ __div_end: 
+	jmp _resume_
+
+ __sub_start: 
+	push dword ptr [a_22] 
+	push dword ptr [b_23] 
+	pop ebx 
+	pop eax 
+	sub eax, ebx 
+	push eax 
+	jmp __sub_end
+ __sub_end: 
+	jmp _resume_
+
+ __main_start: 
+	mov eax, 25 
+	push eax 
+	pop dword ptr [a_25] 
+	pop eax 
+	push dword ptr [a_25] 
+	pop dword ptr [a_13] 
+	mov eax, 5 
+	push eax 
+	pop dword ptr [b_14] 
+	jmp __sum_start
  _resume_0: 
 	push dword ptr [func_count] 
 	mov eax, 1 
@@ -228,11 +291,13 @@ otherfunc proc
 	add eax, ebx 
 	push eax 
 	pop dword ptr [func_count] 
-	pop dword ptr [a_8] 
+	pop dword ptr [b_26] 
 	pop eax 
-	push dword ptr [a_8] 
-	pop dword ptr [a_3] 
-	jmp __two_start
+	push dword ptr [a_25] 
+	pop dword ptr [a_1] 
+	push dword ptr [b_26] 
+	pop dword ptr [b_2] 
+	jmp __max_start
  _resume_1: 
 	push dword ptr [func_count] 
 	mov eax, 1 
@@ -242,15 +307,11 @@ otherfunc proc
 	add eax, ebx 
 	push eax 
 	pop dword ptr [func_count] 
-	push dword ptr [b_7] 
-	mov eax, 1 
+	pop dword ptr [a_16] 
+	mov eax, 2 
 	push eax 
-	pop ebx 
-	pop eax 
-	add eax, ebx 
-	push eax 
-	pop dword ptr [a_5] 
-	jmp __sqr_start
+	pop dword ptr [b_17] 
+	jmp __mul_start
  _resume_2: 
 	push dword ptr [func_count] 
 	mov eax, 1 
@@ -260,10 +321,110 @@ otherfunc proc
 	add eax, ebx 
 	push eax 
 	pop dword ptr [func_count] 
+	pop dword ptr [c_27] 
+	pop eax 
+	push dword ptr [a_25] 
+	pop dword ptr [a_22] 
+	push dword ptr [c_27] 
+	pop dword ptr [b_23] 
+	jmp __sub_start
+ _resume_3: 
+	push dword ptr [func_count] 
+	mov eax, 1 
+	push eax 
 	pop ebx 
 	pop eax 
 	add eax, ebx 
 	push eax 
+	pop dword ptr [func_count] 
+	pop dword ptr [a_19] 
+	mov eax, 5 
+	push eax 
+	pop dword ptr [b_20] 
+	jmp __div_start
+ _resume_4: 
+	push dword ptr [func_count] 
+	mov eax, 1 
+	push eax 
+	pop ebx 
+	pop eax 
+	add eax, ebx 
+	push eax 
+	pop dword ptr [func_count] 
+	pop dword ptr [d_28] 
+	pop eax 
+	push dword ptr [a_25] 
+	mov eax, 1 
+	push eax 
+	pop ebx 
+	pop eax 
+	add eax, ebx 
+	push eax 
+	pop dword ptr [a_25] 
+	pop eax 
+	push dword ptr [b_26] 
+	mov eax, 1 
+	push eax 
+	pop ebx 
+	pop eax 
+	sub eax, ebx 
+	push eax 
+	pop dword ptr [b_26] 
+	pop eax 
+	push dword ptr [c_27] 
+	mov eax, 2 
+	push eax 
+	pop ebx 
+	pop eax 
+	imul eax, ebx 
+	push eax 
+	pop dword ptr [c_27] 
+	pop eax 
+	push dword ptr [d_28] 
+	mov eax, 2 
+	push eax 
+	pop ebx 
+	pop eax 
+	cdq 
+	idiv ebx 
+	push eax 
+	pop dword ptr [d_28] 
+	pop eax 
+	push dword ptr [a_25] 
+	push dword ptr [d_28] 
+	pop ebx 
+	pop eax 
+	imul eax, ebx 
+	push eax 
+	pop dword ptr [a_25] 
+	pop eax 
+	push dword ptr [a_25] 
+	pop dword ptr [a_7] 
+	push dword ptr [b_26] 
+	pop dword ptr [b_8] 
+	push dword ptr [c_27] 
+	pop dword ptr [a_11] 
+	jmp __sqr_start
+ _resume_5: 
+	push dword ptr [func_count] 
+	mov eax, 1 
+	push eax 
+	pop ebx 
+	pop eax 
+	add eax, ebx 
+	push eax 
+	pop dword ptr [func_count] 
+	pop dword ptr [c_9] 
+	jmp __func_start
+ _resume_6: 
+	push dword ptr [func_count] 
+	mov eax, 1 
+	push eax 
+	pop ebx 
+	pop eax 
+	add eax, ebx 
+	push eax 
+	pop dword ptr [func_count] 
 	jmp __main_end
  __main_end: 
 
@@ -283,6 +444,22 @@ otherfunc proc
 	pop eax 
 	cmp eax, 2 
 	jz _resume_2 
+	push dword ptr [func_count]
+	pop eax 
+	cmp eax, 3 
+	jz _resume_3 
+	push dword ptr [func_count]
+	pop eax 
+	cmp eax, 4 
+	jz _resume_4 
+	push dword ptr [func_count]
+	pop eax 
+	cmp eax, 5 
+	jz _resume_5 
+	push dword ptr [func_count]
+	pop eax 
+	cmp eax, 6 
+	jz _resume_6 
  _output__: 
 	fn MessageBox, 0, str$(eax), ADDR Caption1, MB_OK 
 	ret 
