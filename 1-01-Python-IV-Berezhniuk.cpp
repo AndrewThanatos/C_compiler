@@ -1,28 +1,64 @@
-int main() {
-    int a = 0b10101 + 3;
-    char c = 'c';
-    float testvar = -1;
-    a = (a * 2) / (2 + 1) - 1;
-    if (a > 100) {
-        return 0;
+int max(int a, int b){
+    if (a > b){
+        return a;
     } else {
-    if (a > 10) {
-        {
-            int a = -1;
-            char c = 'z';
-        }
-        if (a == -1){
-            return -1;
-        }
-        a = a * testvar;
-        testvar = 0;
+        return b;
+    }
+}
+
+int min(int a, int b){
+    if (a < b){
+        return a;
     } else {
-        return -10;
+        return b;
     }
+}
+
+int func(int a, int b, float c){
+    a += 1;
+    b += 1;
+    c -= 1;
+    if (a < 0){
+        a *= -1;
     }
-    if (testvar == 0){
-        int newvar = -20;
-        a = (-a * newvar) && (a / newvar);
+    if (b < 0){
+        b *= -1;
     }
-    return a;
+    if (c < 0){
+        c *= -1;
+    }
+    return a + b + c;
+}
+
+int sqr(int a){
+    return a * a;
+}
+
+int sum(int a, int b){
+    return a + b;
+}
+
+int mul(int a, int b){
+    return a * b;
+}
+
+int divv(int a, int b){
+    return a / b;
+}
+
+int sub(int a, int b){
+    return a - b;
+}
+
+int main(){
+    int a = 25;
+    int b = sum(a, 5);
+    int c = mul(max(a, b), 2);
+    int d = divv(sub(a, c), 5);
+    a += 1;
+    b -= 1;
+    c *= 2;
+    d /= 2;
+    a *= min(a * 3, d);
+    return func(a, b, sqr(c / b));
 }
