@@ -142,27 +142,32 @@ class Compiler:
 
             self.call_func_count += 1
         elif node.kind == Parser.FOR:
+            self.level += 1
+            level = self.level
+
             for var in node.op1['vars']:
                 self.compile(var)
             self.gen(ADDR)
-            self.gen(f'_loop_condition_{self.level}')
+            self.gen(f'_loop_condition_{level}')
             if node.op1['cond']:
                 self.compile(node.op1['cond'])
 
             self.gen(JZ)
-            self.gen(f'_loop_end_{self.level}')
+            self.gen(f'_loop_end_{level}')
 
             self.compile(node.op2)
             for expr in node.op1['expr']:
                 self.compile(expr)
 
             self.gen(JMP)
-            self.gen(f'_loop_condition_{self.level}')
+            self.gen(f'_loop_condition_{level}')
 
             self.gen(ADDR)
-            self.gen(f'_loop_end_{self.level}')
-            self.level += 1
+            self.gen(f'_loop_end_{level}')
         elif node.kind == Parser.WHILE:
+            self.level += 1
+            level = self.level
+
             self.gen(ADDR)
             self.gen(f'_loop_condition_{self.level}')
             if node.op1:
@@ -178,10 +183,11 @@ class Compiler:
 
             self.gen(ADDR)
             self.gen(f'_loop_end_{self.level}')
-            self.level += 1
         elif node.kind == Parser.DO:
+            self.level += 1
+            level = self.level
             self.gen(ADDR)
-            self.gen(f'_loop_condition_{self.level}')
+            self.gen(f'_loop_condition_{level}')
 
             self.compile(node.op1)
 
@@ -189,13 +195,13 @@ class Compiler:
                 self.compile(node.op2)
 
             self.gen(JZ)
-            self.gen(f'_loop_end_{self.level}')
+            self.gen(f'_loop_end_{level}')
 
             self.gen(JMP)
-            self.gen(f'_loop_condition_{self.level}')
+            self.gen(f'_loop_condition_{level}')
 
             self.gen(ADDR)
-            self.gen(f'_loop_end_{self.level}')
+            self.gen(f'_loop_end_{level}')
         elif node.kind == Parser.SEQ:
             self.compile(node.op1)
             self.compile(node.op2)
@@ -318,8 +324,8 @@ class VM:
                 command = ADDR
                 file.write(VM.ASSEMBLY[command](f'_{next_command}'))
                 count += 2
-            # elif command in [IPOP]:
-            #     count += 1
+            elif command in [IPOP]:
+                count += 1
             else:
                 file.write(VM.ASSEMBLY[command]())
                 count += 1
