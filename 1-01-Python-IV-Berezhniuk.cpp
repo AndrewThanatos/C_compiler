@@ -15,17 +15,10 @@ int min(int a, int b){
 }
 
 int func(int a, int b, float c){
-    a += 1;
-    b += 1;
-    c -= 1;
-    if (a < 0){
-        a *= -1;
-    }
-    if (b < 0){
-        b *= -1;
-    }
-    if (c < 0){
-        c *= -1;
+    for (int i=0; i<5; i+=1){
+        for (int j=5; j>0; j-=2){
+            a += 1;
+        }
     }
     return a + b + c;
 }
@@ -60,5 +53,12 @@ int main(){
     c *= 2;
     d /= 2;
     a *= min(a * 3, d);
+    while (a < 100){
+     a += 1;
+     b -= 1;
+    }
+    for (int i=0; i<10; i+=2){
+        a += 2;
+    }
     return func(a, b, sqr(c / b));
 }

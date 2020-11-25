@@ -18,8 +18,24 @@ def print_block(block, cur_color=0, level=0):
           '\"' + block.ex_type + '\"' if block.ex_type is not None else '',
           '\"' + block.cur_func + '\"' if block.cur_func is not None else '')
 
-    if block.op1 is not None and block.kind != 'FUNC_CALL' and block.kind != 'FUNC':
-        print_block(block.op1, (cur_color + 1) % len(colors), level + 1)
+    if block.kind == 'FOR':
+        for i in block.op1['vars']:
+            print(level * '\t', colored('( ', 'magenta'), i.kind,
+                  '\"' + i.ex_type + '\"' if i.ex_type is not None else '',
+                  i.value if i.value is not None else '', colored(') ', 'magenta'))
+
+        print(level * '\t', colored('( ', 'magenta'), block.op1['cond'].kind,
+              '\"' + block.op1['cond'].ex_type + '\"' if block.op1['cond'].ex_type is not None else '',
+              block.op1['cond'].value if block.op1['cond'].value is not None else '', colored(') ', 'magenta'))
+
+        for i in block.op1['expr']:
+            print(level * '\t', colored('( ', 'magenta'), i.kind,
+                  '\"' + i.ex_type + '\"' if i.ex_type is not None else '',
+                  i.value if i.value is not None else '', colored(') ', 'magenta'))
+
+    else:
+        if block.op1 is not None and block.kind != 'FUNC_CALL' and block.kind != 'FUNC':
+            print_block(block.op1, (cur_color + 1) % len(colors), level + 1)
     if block.op2 is not None:
         print_block(block.op2, (cur_color + 1) % len(colors), level + 1)
     if block.op3 is not None:
