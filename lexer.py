@@ -35,6 +35,7 @@ class Lexer:
     IF = 'IF'
     ELSE = 'ELSE'
     WHILE = 'WHILE'
+    FOR = 'FOR'
     DO = 'DO'
     RETURN = 'RETURN'
 
@@ -91,7 +92,7 @@ class Lexer:
     BOOLEAN_VALUES = {'false': FALSE, 'true': TRUE}
     BOOLEAN_PYTHON = {'false': False, 'true': True}
 
-    WORDS = {'if': IF, 'else': ELSE, 'do': DO, 'while': WHILE, 'return': RETURN}
+    WORDS = {'if': IF, 'else': ELSE, 'do': DO, 'while': WHILE, 'return': RETURN, 'for': FOR}
     TYPES = {'int': INT, 'float': FLOAT, 'char': CHAR, 'string': STRING, 'bool': BOOL}
 
     ch = ' '

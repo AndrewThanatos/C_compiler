@@ -108,6 +108,7 @@ class Parser:
     IF1 = 'IF1'
     IF2 = 'IF2'
     WHILE = 'WHILE'
+    FOR = 'FOR'
     DO = 'DO'
     EMPTY = 'EMPTY'
     RETURN = 'RETURN'
@@ -128,6 +129,7 @@ class Parser:
         self.cur_func = None
         self.arguments = []
         self.set_arguments = False
+        self.new_var_level = True
 
     def error(self, msg):
         self.lexer.error(msg, 'parser')
@@ -395,6 +397,31 @@ class Parser:
         elif self.lexer.sym == Lexer.WHILE:
             self.lexer.next_tok()
             n = Node(kind=Parser.WHILE, op1=self.paren_expr(), op2=self.statement())
+        elif self.lexer.sym == Lexer.FOR:
+            self.lexer.next_tok()
+            self.vars.new_level()
+            self.new_var_level = False
+            if self.lexer.sym != Lexer.LPAR:
+                self.error('(SyntaxError) \'(\' expected')
+            self.lexer.next_tok()
+            op1 = {'vars': [], 'cond': None, 'expr': []}
+            while self.lexer.sym != Lexer.SEMICOLON:
+                op1['vars'].append(self.expr())
+                if self.lexer.sym == Lexer.COMA:
+                    self.lexer.next_tok()
+
+            self.lexer.next_tok()
+            if self.lexer.sym != Lexer.SEMICOLON:
+                op1['cond'] = self.expr()
+            self.lexer.next_tok()
+
+            while self.lexer.sym != Lexer.RPAR:
+                op1['expr'].append(self.expr())
+                if self.lexer.sym == Lexer.COMA:
+                    self.lexer.next_tok()
+            self.lexer.next_tok()
+
+            n = Node(kind=Parser.FOR, op1=op1, op2=self.statement())
         elif self.lexer.sym == Lexer.DO:
             self.lexer.next_tok()
             n = Node(kind=Parser.DO, op1=self.statement())
@@ -413,7 +440,10 @@ class Parser:
         elif self.lexer.sym == Lexer.LBRA:
             n = Node(kind=Parser.EMPTY)
             self.lexer.next_tok()
-            self.vars.new_level()
+
+            if self.new_var_level:
+                self.vars.new_level()
+            self.new_var_level = True
             if self.set_arguments:
                 for value in self.arguments:
                     self.vars.add_variable(value['value'].split('_')[0], value['type'], True)
