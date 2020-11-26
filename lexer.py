@@ -99,7 +99,7 @@ class Lexer:
     def error(self, msg, type='lexer'):
         print(f'{type.title()} Error: {msg}')
         print(f'Line {self.line}:')
-        input('\nPress Enter to exit')
+        input('\n')
         sys.exit(1)
 
     def getc(self):

@@ -1,12 +1,13 @@
 from parcer import Parser
 from lexer import Lexer
+from utils import print_block
 from compiler import Compiler, VM
 
 import sys
 
 if __name__ == '__main__':
     try:
-        file = open('3-03-Python-IV-82-Borozenets.txt', 'r')
+        file = open('4-03-Python-IV-82-Borozenets.txt', 'r')
     except:
         print('Create input file"')
         input('\nPress Enter to exit')
@@ -16,6 +17,7 @@ if __name__ == '__main__':
     C = Compiler()
     V = VM()
     n = P.parse()
+    print_block(n)
     comp = C.compile(n)
 
     V.run(comp)

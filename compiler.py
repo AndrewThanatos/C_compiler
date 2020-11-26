@@ -204,7 +204,7 @@ class VM:
     }
 
     def run(self, program):
-        file = open('3-03-Python-IV-82-Borozenets.asm', 'w+')
+        file = open('4-03-Python-IV-82-Borozenets.asm', 'w+')
         count = 0
         if 'main' in VARIABLES:
             del VARIABLES['main']
