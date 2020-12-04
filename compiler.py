@@ -275,7 +275,7 @@ class VM:
     }
 
     def run(self, program, call_func_count):
-        file = open('1-01-Python-IV-82-Berezhniuk.asm', 'w+')
+        file = open('5-03-Python-IV-82-Borozenets.asm', 'w+')
         count = 0
         if 'main' in VARIABLES:
             del VARIABLES['main']
