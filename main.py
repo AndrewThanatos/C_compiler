@@ -19,6 +19,12 @@ if __name__ == '__main__':
     comp = C.compile(n)
     print_block(n)
     V.run(comp, C.call_func_count)
+    print()
+    print('---------------------------------------')
+    print()
+    with open('5-03-Python-IV-82-Borozenets.asm', 'r') as f:
+        print(f.read())
+
     input('')
 
 
