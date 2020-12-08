@@ -101,7 +101,7 @@ class Lexer:
         print(f'{type} error: {msg}')
         print(f'Line {self.line}:')
 
-        read_file = open('5-03-Python-IV-82-Borozenets.txt', 'r')
+        read_file = open('6-03-Python-IV-82-Borozenets.txt', 'r')
         read_file.close()
         input('')
         sys.exit(1)
