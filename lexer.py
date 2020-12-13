@@ -50,6 +50,7 @@ class Lexer:
     MINUS = 'MINUS'
     MULTIPLY = 'MULTIPLY'
     DEVIDE = 'DEVIDE'
+    MOD = 'MOD'
     EXCL_MARK = 'EXCL_MARK'
     B_AND = 'B_AND'
     L_AND = 'L_AND'
@@ -73,14 +74,14 @@ class Lexer:
     EOF = 'EOF'
 
     SYMBOLS = {'{': LBRA, '}': RBRA, '=': ASSIGN, ';': SEMICOLON, '(': LPAR, ')': RPAR, '+': PLUS, '-': MINUS,
-               '*': MULTIPLY, '/': DEVIDE, '<': LESS, '>': MORE, '!': EXCL_MARK, '&': B_AND, ',': COMA,
+               '*': MULTIPLY, '/': DEVIDE, '%': MOD, '<': LESS, '>': MORE, '!': EXCL_MARK, '&': B_AND, ',': COMA,
                '?': QUESTION_MARK, ':': DOUBLE_DOT}
 
     QUOTES = '\"'
     QUOTE = '\''
     DOT = '.'
 
-    ARITHMETIC = {'PLUS': '+', 'MINUS': '-', 'DEVIDE': '/', 'MULTIPLY': '*'}
+    ARITHMETIC = {'PLUS': '+', 'MINUS': '-', 'DEVIDE': '/', 'MULTIPLY': '*', 'MOD': '%'}
     TEST_SYMBOLS_LONG = {'==': EQUAL, '>=': MORE_EQUAL, '<=': LESS_EQUAL, '!=': NOT_EQUAL, '&&': L_AND}
     ARITHMETIC_SYMBOLS_LONG = {'/=': DIV_EQUAL, '*=': MUL_EQUAL, '-=': MIN_EQUAL, '+=': SUM_EQUAL}
     TEST_SYMBOLS_SHORT = {'=': ASSIGN, '>': MORE, '<': LESS}
@@ -101,7 +102,7 @@ class Lexer:
         print(f'{type.title()} error: {msg}')
         print(f'Error in line {self.line}:')
 
-        read_file = open('1-01-Python-IV-82-Berezhniuk.txt', 'r')
+        read_file = open('kr-01-Python-IV-82-Berezhniuk.txt', 'r')
         data = read_file.readline()
         for i in range(self.line - 1):
             data = read_file.readline()

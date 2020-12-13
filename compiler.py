@@ -11,6 +11,7 @@ ISUB = 'ISUB'
 IMUL = 'IMUL'
 IAND = 'IAND'
 IDIV = 'IDIV'
+IMOD = 'IMOD'
 IMINUS = 'IMINUS'
 HALT = 'HALT'
 CMP = 'CMP'
@@ -64,6 +65,10 @@ class Compiler:
             self.compile(node.op1)
             self.compile(node.op2)
             self.gen(IDIV)
+        elif node.kind == Parser.MOD:
+            self.compile(node.op1)
+            self.compile(node.op2)
+            self.gen(IMOD)
         elif node.kind == Parser.L_AND:
             self.compile(node.op1)
             self.compile(node.op2)
@@ -256,6 +261,7 @@ class VM:
         'ISUB': lambda: f'\tpop ebx \n\tpop eax \n\tsub eax, ebx \n\tpush eax \n',
         'IMUL': lambda: f'\tpop ebx \n\tpop eax \n\timul eax, ebx \n\tpush eax \n',
         'IDIV': lambda: f'\tpop ebx \n\tpop eax \n\tcdq \n\tidiv ebx \n\tpush eax \n',
+        'IMOD': lambda: f'\tpop ebx \n\tpop eax \n\tcdq \n\tidiv ebx \n\tpush edx \n',
         'IAND': lambda: f'\tpop eax \n\tpop ebx \n\tand edx, edx \n\tpush eax \n',
         'IMINUS': lambda: f'\tpop eax \n\tmov ebx, -1 \n\timul eax, ebx \n\tpush eax \n',
         'CMP': lambda: f'\tpop eax \n\tpop ebx \n\tcmp ebx, eax \n',
@@ -275,7 +281,7 @@ class VM:
     }
 
     def run(self, program, call_func_count):
-        file = open('1-01-Python-IV-82-Berezhniuk.asm', 'w+')
+        file = open('kr-01-Python-IV-82-Berezhniuk.asm', 'w+')
         count = 0
         if 'main' in VARIABLES:
             del VARIABLES['main']
@@ -306,6 +312,14 @@ class VM:
 
         file.write('\n.code \n')
         file.write('otherfunc proc \n')
+        num1 = input('Please Enter first number ')
+        num2 = input('Please Enter second number ')
+        file.write(f'mov eax {num1}')
+        file.write('push eax')
+        file.write(f'pop dword ptr [num1]')
+        file.write(f'mov eax {num2}')
+        file.write('push eax')
+        file.write(f'pop dword ptr [num2]')
         file.write('\tjmp __main_start \n')
         while program[count] != HALT:
             command = program[count]

@@ -6,9 +6,9 @@ import sys
 
 if __name__ == '__main__':
     try:
-        file = open('1-01-Python-IV-82-Berezhniuk.txt', 'r')
+        file = open('kr-01-Python-IV-82-Berezhniuk.txt', 'r')
     except:
-            print('Please create file "1-01-Python-IV-82-Berezhniuk.txt"')
+            print('Please create file "kr-01-Python-IV-82-Berezhniuk.txt"')
             input('\nPress Enter to exit')
             sys.exit(1)
     L = Lexer(file)
@@ -17,8 +17,15 @@ if __name__ == '__main__':
     V = VM()
     n = P.parse()
     comp = C.compile(n)
-    print_block(n)
     V.run(comp, C.call_func_count)
+
+    print_block(n)
+    print()
+    print('=====================================')
+    print()
+    print('ASM Code')
+    with open('kr-01-Python-IV-82-Berezhniuk.asm', 'r') as f:
+        print(f.read())
     input('\nPress Enter to exit')
 
 
