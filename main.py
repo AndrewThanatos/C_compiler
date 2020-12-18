@@ -6,7 +6,7 @@ import sys
 
 if __name__ == '__main__':
     try:
-        file = open('6-03-Python-IV-82-Borozenets.txt', 'r')
+        file = open('kr-03-Python-IV-82-Borozenets.txt', 'r')
     except:
             print('Please create input file')
             input('')
@@ -22,7 +22,7 @@ if __name__ == '__main__':
     print()
     print('---------------------------------------')
     print()
-    with open('6-03-Python-IV-82-Borozenets.asm', 'r') as f:
+    with open('kr-03-Python-IV-82-Borozenets.asm', 'r') as f:
         print(f.read())
 
     input('')
