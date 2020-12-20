@@ -53,6 +53,7 @@ class Lexer:
     EXCL_MARK = 'EXCL_MARK'
     B_AND = 'B_AND'
     L_AND = 'L_AND'
+    TILDE = 'TILDE'
 
     LESS = 'LESS'
     MORE = 'MORE'
@@ -74,7 +75,7 @@ class Lexer:
 
     SYMBOLS = {'{': LBRA, '}': RBRA, '=': ASSIGN, ';': SEMICOLON, '(': LPAR, ')': RPAR, '+': PLUS, '-': MINUS,
                '*': MULTIPLY, '/': DEVIDE, '<': LESS, '>': MORE, '!': EXCL_MARK, '&': B_AND, ',': COMA,
-               '?': QUESTION_MARK, ':': DOUBLE_DOT}
+               '?': QUESTION_MARK, ':': DOUBLE_DOT, '~': TILDE}
 
     QUOTES = '\"'
     QUOTE = '\''
@@ -87,7 +88,7 @@ class Lexer:
     TEST_SMB_SHORT = {'LESS': '<', 'MORE': '>', 'ASSIGN': '=', 'B_AND': '&'}
 
     ARITHMETIC_LONG = [DIV_EQUAL, MUL_EQUAL, MIN_EQUAL, SUM_EQUAL]
-    FIRST_OPERATORS = [MINUS]
+    FIRST_OPERATORS = [MINUS, TILDE]
     BOOLEAN = [B_AND]
     BOOLEAN_VALUES = {'false': FALSE, 'true': TRUE}
     BOOLEAN_PYTHON = {'false': False, 'true': True}

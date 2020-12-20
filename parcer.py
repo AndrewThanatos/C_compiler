@@ -96,6 +96,7 @@ class Parser:
     B_AND = 'B_AND'
     L_AND = 'L_AND'
     U_MINUS = 'U_MINUS'
+    TILDE = 'TILDE'
 
     LESS = 'LESS'
     MORE = 'MORE'
@@ -202,9 +203,14 @@ class Parser:
             self.lexer.next_tok()
             if self.lexer.sym == Lexer.LPAR:
                 op1 = self.paren_expr()
+                kind = None
+            elif self.lexer.sym == Lexer.MINUS:
+                op1 = self.term()
+                kind = Parser.U_MINUS
             else:
                 op1 = self.term()
-            n = Node(kind=Parser.U_MINUS, op1=op1, ex_type=op1.ex_type)
+                kind = Parser.TILDE
+            n = Node(kind=kind, op1=op1, ex_type=op1.ex_type)
             return n
         elif self.lexer.sym == Lexer.LPAR:
             return self.paren_expr()

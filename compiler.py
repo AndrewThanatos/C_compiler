@@ -12,6 +12,7 @@ IMUL = 'IMUL'
 IAND = 'IAND'
 IDIV = 'IDIV'
 IMINUS = 'IMINUS'
+INVERSE = 'INVERSE'
 HALT = 'HALT'
 CMP = 'CMP'
 JL = 'JL'
@@ -71,6 +72,9 @@ class Compiler:
         elif node.kind == Parser.U_MINUS:
             self.compile(node.op1)
             self.gen(IMINUS)
+        elif node.kind == Parser.TILDE:
+            self.compile(node.op1)
+            self.gen(INVERSE)
         elif node.kind == Parser.LESS:
             self.compile(node.op1)
             self.compile(node.op2)
@@ -258,6 +262,7 @@ class VM:
         'IDIV': lambda: f'\tpop ebx \n\tpop eax \n\tcdq \n\tidiv ebx \n\tpush eax \n',
         'IAND': lambda: f'\tpop eax \n\tpop ebx \n\tand edx, edx \n\tpush eax \n',
         'IMINUS': lambda: f'\tpop eax \n\tmov ebx, -1 \n\timul eax, ebx \n\tpush eax \n',
+        'INVERSE': lambda: f'\tpop eax \n\tmov ebx, -1 \n\timul eax, ebx \n\tmov ebx, 1\n\tsub eax, ebx \n\tpush eax\n',
         'CMP': lambda: f'\tpop eax \n\tpop ebx \n\tcmp ebx, eax \n',
         'NLINE': lambda: f'\n',
         'JL': lambda x: f'\tmov eax, 1 \n\tjl _true_{x} \n\tmov eax, 0 \n _true_{x}: \n\tpush eax \n',
