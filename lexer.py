@@ -99,17 +99,17 @@ class Lexer:
     ch = ' '
 
     def error(self, msg, type='lexer'):
-        print(f'{type.title()} error: {msg}')
-        print(f'Error in line {self.line}:')
+        print(f'{type} error {msg}')
+        print(f'line {self.line}:')
 
-        read_file = open('1-01-Python-IV-82-Berezhniuk.txt', 'r')
+        read_file = open('4-15-Python-IV-82-Motora.txt', 'r')
         data = read_file.readline()
         for i in range(self.line - 1):
             data = read_file.readline()
 
         print(f'\t{data}')
         read_file.close()
-        input('\nPress Enter to exit')
+        input('')
         sys.exit(1)
 
     def getc(self):

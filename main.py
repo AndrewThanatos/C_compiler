@@ -1,15 +1,14 @@
 from parcer import Parser
 from lexer import Lexer
 from compiler import Compiler, VM
-from utils import print_block
 import sys
 
 if __name__ == '__main__':
     try:
-        file = open('1-01-Python-IV-82-Berezhniuk.txt', 'r')
+        file = open('4-15-Python-IV-82-Motora.txt', 'r')
     except:
-            print('Please create file "1-01-Python-IV-82-Berezhniuk.txt"')
-            input('\nPress Enter to exit')
+            print('')
+            input('')
             sys.exit(1)
     L = Lexer(file)
     P = Parser(L)
@@ -17,9 +16,10 @@ if __name__ == '__main__':
     V = VM()
     n = P.parse()
     comp = C.compile(n)
-    print_block(n)
     V.run(comp, C.call_func_count)
-    input('\nPress Enter to exit')
+    with open('4-15-Python-IV-82-Motora.asm', 'r') as f:
+        print(f.read())
+    input('')
 
 
 

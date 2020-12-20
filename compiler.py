@@ -280,7 +280,7 @@ class VM:
     }
 
     def run(self, program, call_func_count):
-        file = open('1-01-Python-IV-82-Berezhniuk.asm', 'w+')
+        file = open('4-15-Python-IV-82-Motora.asm', 'w+')
         count = 0
         if 'main' in VARIABLES:
             del VARIABLES['main']
@@ -300,7 +300,7 @@ class VM:
         file.write('\n\n')
 
         file.write('.data\n')
-        file.write('\tCaption1 db "Andrew Berezhniuk", 0\n\tbuf dw ? \n')
+        file.write('\tCaption1 db "Result", 0\n\tbuf dw ? \n')
         file.write('\tfunc_count dword 0, 0 \n')
         for var_name in VARIABLES:
             file.write(f'\t{var_name} dword 0, 0 \n')
@@ -310,7 +310,7 @@ class VM:
             flag = False
 
         file.write('\n.code \n')
-        file.write('otherfunc proc \n')
+        file.write('mainfunc proc \n')
         file.write('\tjmp __main_start \n')
         while program[count] != HALT:
             command = program[count]
@@ -349,10 +349,10 @@ class VM:
 
             file.write(' _output__: \n')
             file.write('\tfn MessageBox, 0, str$(eax), ADDR Caption1, MB_OK \n\tret \n')
-        file.write('otherfunc endp \n')
+        file.write('mainfunc endp \n')
         file.write('\n\n')
         file.write('main:\n')
-        file.write('\tinvoke otherfunc\n')
+        file.write('\tinvoke mainfunc\n')
         file.write('\tinvoke ExitProcess, 0\n')
         file.write('end main\n')
         file.close()
