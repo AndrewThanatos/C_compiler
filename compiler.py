@@ -11,6 +11,7 @@ ISUB = 'ISUB'
 IMUL = 'IMUL'
 IAND = 'IAND'
 IDIV = 'IDIV'
+IMOD = 'IMOD'
 IMINUS = 'IMINUS'
 INVERSE = 'INVERSE'
 HALT = 'HALT'
@@ -65,6 +66,10 @@ class Compiler:
             self.compile(node.op1)
             self.compile(node.op2)
             self.gen(IDIV)
+        elif node.kind == Parser.MOD:
+            self.compile(node.op1)
+            self.compile(node.op2)
+            self.gen(IMOD)
         elif node.kind == Parser.L_AND:
             self.compile(node.op1)
             self.compile(node.op2)
@@ -260,6 +265,7 @@ class VM:
         'ISUB': lambda: f'\tpop ebx \n\tpop eax \n\tsub eax, ebx \n\tpush eax \n',
         'IMUL': lambda: f'\tpop ebx \n\tpop eax \n\timul eax, ebx \n\tpush eax \n',
         'IDIV': lambda: f'\tpop ebx \n\tpop eax \n\tcdq \n\tidiv ebx \n\tpush eax \n',
+        'IMOD': lambda: f'\tpop ebx \n\tpop eax \n\tcdq \n\tidiv ebx \n\tpush edx \n',
         'IAND': lambda: f'\tpop eax \n\tpop ebx \n\tand edx, edx \n\tpush eax \n',
         'IMINUS': lambda: f'\tpop eax \n\tmov ebx, -1 \n\timul eax, ebx \n\tpush eax \n',
         'INVERSE': lambda: f'\tpop eax \n\tmov ebx, -1 \n\timul eax, ebx \n\tmov ebx, 1\n\tsub eax, ebx \n\tpush eax\n',

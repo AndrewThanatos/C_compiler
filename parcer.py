@@ -92,6 +92,7 @@ class Parser:
     SUB = 'SUB'
     MULT = 'MULT'
     DIV = 'DIV'
+    MOD = 'MOD'
 
     B_AND = 'B_AND'
     L_AND = 'L_AND'
@@ -219,11 +220,13 @@ class Parser:
 
     def multy(self):
         n = self.term()
-        if self.lexer.sym == Lexer.MULTIPLY or self.lexer.sym == Lexer.DEVIDE:
+        if self.lexer.sym == Lexer.MULTIPLY or self.lexer.sym == Lexer.DEVIDE or self.lexer.sym == Lexer.MOD:
             if self.lexer.sym == Lexer.MULTIPLY:
                 kind = Parser.MULT
-            else:
+            elif self.lexer.sym == Lexer.DEVIDE:
                 kind = Parser.DIV
+            else:
+                kind = Lexer.MOD
             self.lexer.next_tok()
             n = Node(kind=kind, op1=n, op2=self.multy())
             self.check_types(n)

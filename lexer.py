@@ -50,6 +50,7 @@ class Lexer:
     MINUS = 'MINUS'
     MULTIPLY = 'MULTIPLY'
     DEVIDE = 'DEVIDE'
+    MOD = 'MOD'
     EXCL_MARK = 'EXCL_MARK'
     B_AND = 'B_AND'
     L_AND = 'L_AND'
@@ -74,14 +75,14 @@ class Lexer:
     EOF = 'EOF'
 
     SYMBOLS = {'{': LBRA, '}': RBRA, '=': ASSIGN, ';': SEMICOLON, '(': LPAR, ')': RPAR, '+': PLUS, '-': MINUS,
-               '*': MULTIPLY, '/': DEVIDE, '<': LESS, '>': MORE, '!': EXCL_MARK, '&': B_AND, ',': COMA,
+               '*': MULTIPLY, '/': DEVIDE, '%': MOD, '<': LESS, '>': MORE, '!': EXCL_MARK, '&': B_AND, ',': COMA,
                '?': QUESTION_MARK, ':': DOUBLE_DOT, '~': TILDE}
 
     QUOTES = '\"'
     QUOTE = '\''
     DOT = '.'
 
-    ARITHMETIC = {'PLUS': '+', 'MINUS': '-', 'DEVIDE': '/', 'MULTIPLY': '*'}
+    ARITHMETIC = {'PLUS': '+', 'MINUS': '-', 'DEVIDE': '/', 'MULTIPLY': '*', 'MOD': '%'}
     TEST_SYMBOLS_LONG = {'==': EQUAL, '>=': MORE_EQUAL, '<=': LESS_EQUAL, '!=': NOT_EQUAL, '&&': L_AND}
     ARITHMETIC_SYMBOLS_LONG = {'/=': DIV_EQUAL, '*=': MUL_EQUAL, '-=': MIN_EQUAL, '+=': SUM_EQUAL}
     TEST_SYMBOLS_SHORT = {'=': ASSIGN, '>': MORE, '<': LESS}
