@@ -6,7 +6,7 @@ import sys
 
 if __name__ == '__main__':
     try:
-        file = open('kr-03-Python-IV-82-Borozenets.txt', 'r')
+        file = open('kr-03-Python-IV-82-Borozenets.cpp', 'r')
     except:
             print('Please create input file')
             input('')
