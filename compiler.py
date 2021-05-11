@@ -131,14 +131,14 @@ class Compiler:
             self.gen(JMP)
             self.gen(f"__{node.value.split('_')[0]}_start")
             self.gen(ADDR)
-            self.gen(f'_resume_{self.call_func_count}')
+            self.gen(f'_rs_{self.call_func_count}')
             self.gen(IFETCH)
-            self.gen('func_count')
+            self.gen('fc')
             self.gen(IPUSH)
             self.gen(1)
             self.gen(IADD)
             self.gen(ISTORE)
-            self.gen('func_count')
+            self.gen('fc')
 
             self.call_func_count += 1
         elif node.kind == Parser.FOR:
@@ -232,7 +232,7 @@ class Compiler:
             self.gen(f'__{self.cur_func}_end')
             if self.cur_func != 'main':
                 self.gen(JMP)
-                self.gen('_resume_')
+                self.gen('_rs_')
             self.gen(NLINE)
             if node.op3:
                 self.compile(node.op3)
@@ -260,11 +260,11 @@ class VM:
         'IMINUS': lambda: f'\tpop eax \n\tmov ebx, -1 \n\timul eax, ebx \n\tpush eax \n',
         'CMP': lambda: f'\tpop eax \n\tpop ebx \n\tcmp ebx, eax \n',
         'NLINE': lambda: f'\n',
-        'JL': lambda x: f'\tmov eax, 1 \n\tjl _true_{x} \n\tmov eax, 0 \n _true_{x}: \n\tpush eax \n',
-        'JLE': lambda x: f'\tmov eax, 1 \n\tjle _true_{x} \n\tmov eax, 0 \n _true_{x}: \n\tpush eax \n',
-        'JG': lambda x: f'\tmov eax, 1 \n\tjg _true_{x} \n\tmov eax, 0 \n _true_{x}: \n\tpush eax \n',
-        'JGE': lambda x: f'\tmov eax, 1 \n\tjge _true_{x} \n\tmov eax, 0 \n _true_{x}: \n\tpush eax \n',
-        'JE': lambda x: f'\tmov eax, 1 \n\tje _true_{x} \n\tmov eax, 0 \n _true_{x}: \n\tpush eax \n',
+        'JL': lambda x: f'\tmov eax, 1 \n\tjl _is_{x} \n\tmov eax, 0 \n _true_{x}: \n\tpush eax \n',
+        'JLE': lambda x: f'\tmov eax, 1 \n\tjle _is_{x} \n\tmov eax, 0 \n _true_{x}: \n\tpush eax \n',
+        'JG': lambda x: f'\tmov eax, 1 \n\tjg _is_{x} \n\tmov eax, 0 \n _true_{x}: \n\tpush eax \n',
+        'JGE': lambda x: f'\tmov eax, 1 \n\tjge _is_{x} \n\tmov eax, 0 \n _true_{x}: \n\tpush eax \n',
+        'JE': lambda x: f'\tmov eax, 1 \n\tje _is_{x} \n\tmov eax, 0 \n _true_{x}: \n\tpush eax \n',
         'JZ': lambda x: f'\tpop eax \n\tcmp eax, 0 \n\tjz {x} \n',
         'JNZ': lambda x: f'\tpop eax \n\tcmp eax, 1 \n\tjz {x} \n',
         'JMP': lambda x: f'\tjmp {x}\n',
@@ -282,21 +282,21 @@ class VM:
 
         file.write('.586\n')
         file.write('.model flat, stdcall\n')
-        file.write('\n')
+        # file.write('\n')
         file.write('option casemap: none\n')
-        file.write('\n')
+        # file.write('\n')
         file.write(r'include \masm32\include\kernel32.inc' + '\n')
         file.write(r'include \masm32\include\user32.inc' + '\n')
         file.write(r'include \masm32\include\windows.inc' + '\n')
         file.write(r'include \masm32\include\masm32rt.inc' + '\n')
-        file.write('\n')
+        # file.write('\n')
         file.write(r'includelib \masm32\lib\kernel32.lib' + '\n')
         file.write(r'includelib \masm32\lib\user32.lib' + '\n')
-        file.write('\n\n')
+        # file.write('\n\n')
 
         file.write('.data\n')
-        file.write('\tCaption1 db "Andrew Berezhniuk", 0\n\tbuf dw ? \n')
-        file.write('\tfunc_count dword 0, 0 \n')
+        file.write('\tText db "Andrew Berezhniuk", 0\n\tbuf dw ? \n')
+        file.write('\tfc dword 0, 0 \n')
         for var_name in VARIABLES:
             file.write(f'\t{var_name} dword 0, 0 \n')
 
@@ -305,8 +305,8 @@ class VM:
             flag = False
 
         file.write('\n.code \n')
-        file.write('otherfunc proc \n')
-        file.write('\tjmp __main_start \n')
+        file.write('fnc proc \n')
+        file.write('\tjmp __mst \n')
         while program[count] != HALT:
             command = program[count]
             next_command = program[count + 1]
@@ -333,23 +333,23 @@ class VM:
             #     count += 1
         if flag:
             file.write('\tpop eax \n')
-            file.write('\tjmp _output__ \n')
+            file.write('\tjmp _ot_ \n')
 
-            file.write('\n _resume_: \n')
+            file.write('\n _rs_: \n')
             for i in range(call_func_count):
-                file.write('\tpush dword ptr [func_count]\n')
+                file.write('\tpush dword ptr [fc]\n')
                 file.write('\tpop eax \n')
                 file.write(f'\tcmp eax, {i} \n')
-                file.write(f'\tjz _resume_{i} \n')
+                file.write(f'\tjz _rs_{i} \n')
 
-            file.write(' _output__: \n')
-            file.write('\tfn MessageBox, 0, str$(eax), ADDR Caption1, MB_OK \n\tret \n')
-        file.write('otherfunc endp \n')
+            file.write(' _ot_: \n')
+            file.write('\tfn MessageBox, 0, str$(eax), ADDR Text, MB_OK \n\tret \n')
+        file.write('fnc endp \n')
         file.write('\n\n')
-        file.write('main:\n')
-        file.write('\tinvoke otherfunc\n')
+        file.write('mn:\n')
+        file.write('\tinvoke fnc\n')
         file.write('\tinvoke ExitProcess, 0\n')
-        file.write('end main\n')
+        file.write('end mn\n')
         file.close()
 
 

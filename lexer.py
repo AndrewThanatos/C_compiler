@@ -7,6 +7,8 @@ def hash_var(var_name):
     hex_dig = hash_object.hexdigest()
     return hex_dig
 
+get_var = lambda var: "h" + str(hash(var) % 1000)
+
 
 class Lexer:
 
@@ -178,7 +180,7 @@ class Lexer:
                     self.value = self.BOOLEAN_PYTHON[ident]
                 else:
                     self.sym = Lexer.ID
-                    self.value = ident
+                    self.value = get_var(ident)
             elif self.ch == Lexer.QUOTES:
                 str_val = ''
                 self.getc()
